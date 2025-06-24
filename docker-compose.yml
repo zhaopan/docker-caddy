@@ -1,0 +1,103 @@
+#/etc/hosts
+x-hosts: &hosts
+  extra_hosts:
+    - default.dev.com:${CADDY_IP}
+
+services:
+  proxy:
+    image: caddy:latest
+    container_name: proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # 挂载主 Caddyfile
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # 挂载包含所有子配置文件的目录
+      - ./caddy/conf.d:/etc/caddy/caddy_conf:ro
+      # 持久化 Caddy 的数据和配置
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      backend:
+        ipv4_address: ${CADDY_IP}
+
+  ######## redis ########
+  redis:
+    build:
+      context: ./redis
+      args:
+        - REDIS_VER=${REDIS_VERSION}
+    image: ${AUTHOR}/${REDIS_NAME}:${REDIS_VERSION}
+    container_name: ${REDIS_NAME}
+    restart: always
+    privileged: true
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_CONF_PATH}:/etc/redis/redis.conf
+    networks:
+      backend:
+        ipv4_address: ${REDIS_IP}
+
+  ######## mysql ########
+  mysql:
+    build:
+      context: ./mysql
+      args:
+        - MYSQL_VERSION=${MYSQL_VERSION}
+    image: ${AUTHOR}/${MYSQL_NAME}:${MYSQL_VERSION}
+    container_name: ${MYSQL_NAME}
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${MYSQL_TIMEZONE}
+    volumes:
+      - ${MYSQL_CONF_PATH}:/etc/mysql/conf.d/docker.cnf:ro
+      - ${MYSQL_DATA_PATH}:/var/lib/mysql
+    # M1 需要指定 platform
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    privileged: true
+    ports:
+      - ${MYSQL_PORT}:3306
+    networks:
+      backend:
+        ipv4_address: ${MYSQL_IP}
+
+  ######## mongo ########
+  mongo:
+    build:
+      context: ./mongo
+      args:
+        - MONGO_VERSION=${MONGO_VERSION}
+    image: ${AUTHOR}/${MONGO_NAME}:${MONGO_VERSION}
+    container_name: ${MONGO_NAME}
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - ${MONGO_CONF_PATH}:/etc/mongod.conf:ro
+      - ${MONGO_PATH}:/data/db
+    #    command:
+    #      - '--auth'
+    #      - '-f'
+    #      - '/etc/mongod.conf'
+    restart: always
+    privileged: true
+    ports:
+      - ${MONGO_PORT}:27017
+    networks:
+      backend:
+        ipv4_address: ${MONGO_IP}
+
+networks:
+  backend:
+    name: backend
+    external: true
+
+volumes:
+  caddy_data:
+    name: caddy_data
+  caddy_config:
+    name: caddy_config

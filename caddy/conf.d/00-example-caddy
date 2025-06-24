@@ -1,0 +1,3 @@
+<example>.<domain>.<suffix> {
+    reverse_proxy web-example:3000
+}

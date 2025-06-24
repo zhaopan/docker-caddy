@@ -28,5 +28,11 @@ go.work.sum
 .env
 
 # Editor/IDE
-# .idea/
-# .vscode/
+.idea/
+.vscode/
+
+# Data
+data/
+
+# caddy-conf
+caddy/conf.d/*.caddy

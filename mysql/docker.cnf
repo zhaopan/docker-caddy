@@ -1,0 +1,13 @@
+[mysqld]
+skip-host-cache
+skip-name-resolve
+
+sql_mode=""
+wait_timeout=1814400
+lower_case_table_names=1
+
+#128MB
+innodb_buffer_pool_chunk_size=134217728
+innodb_buffer_pool_instances=4
+#4GB
+innodb_buffer_pool_size=4294967296
