@@ -48,6 +48,24 @@ docker-compose down
 docker-compose down --rmi all
 ```
 
+## make `build` | `up` | `stop` | `down`
+
+[Install make](https://github.com/zhaopan/pub/01.home/make.md)
+
+```bash
+# build
+make build
+
+# up
+make up
+
+# stop
+make stop
+
+# down
+make down
+```
+
 ## 网络拓扑图
 
 ```mermaid
