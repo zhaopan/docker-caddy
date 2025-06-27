@@ -5,17 +5,18 @@ x-hosts: &hosts
 
 services:
   proxy:
-    image: caddy:latest
-    container_name: proxy
+    build:
+      context: ./caddy
+      args:
+        - CADDY_VERSION=${CADDY_VERSION}
+    image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
+    container_name: ${CADDY_NAME}
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      # 挂载主 Caddyfile
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      # 挂载包含所有子配置文件的目录
       - ./caddy/conf.d:/etc/caddy/caddy_conf:ro
-      # 持久化 Caddy 的数据和配置
       - caddy_data:/data
       - caddy_config:/config
     networks:
@@ -34,6 +35,8 @@ services:
     privileged: true
     ports:
       - ${REDIS_PORT}:6379
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - ${REDIS_DATA_PATH}:/data
       - ${REDIS_CONF_PATH}:/etc/redis/redis.conf
