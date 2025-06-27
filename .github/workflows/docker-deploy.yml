@@ -34,7 +34,7 @@ jobs:
         with:
           context: ./caddy
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/caddy:latest,ghcr.io/${{ github.repository_owner }}/caddy:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/caddy:2.10,ghcr.io/${{ github.repository_owner }}/caddy:${{ github.sha }}
           build-args: |
             CADDY_VERSION=${{ vars.CADDY_VERSION || '2.10' }}
 
@@ -44,7 +44,7 @@ jobs:
         with:
           context: ./redis
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/redis:latest,ghcr.io/${{ github.repository_owner }}/redis:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/redis:5.0,ghcr.io/${{ github.repository_owner }}/redis:${{ github.sha }}
           build-args: |
             REDIS_VER=${{ vars.REDIS_VER || '5.0' }}
 
@@ -54,7 +54,7 @@ jobs:
         with:
           context: ./mysql
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/mysql:latest,ghcr.io/${{ github.repository_owner }}/mysql:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/mysql:8.0,ghcr.io/${{ github.repository_owner }}/mysql:${{ github.sha }}
           build-args: |
             MYSQL_VERSION=${{ vars.MYSQL_VERSION || '8.0' }}
 
@@ -64,6 +64,6 @@ jobs:
         with:
           context: ./mongo
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/mongo:latest,ghcr.io/${{ github.repository_owner }}/mongo:${{ github.sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/mongo:3.4,ghcr.io/${{ github.repository_owner }}/mongo:${{ github.sha }}
           build-args: |
             MONGO_VERSION=${{ vars.MONGO_VERSION || '3.4' }}

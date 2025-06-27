@@ -36,3 +36,7 @@ data/
 
 # caddy-conf
 caddy/conf.d/*.caddy
+
+# log
+
+logs/
