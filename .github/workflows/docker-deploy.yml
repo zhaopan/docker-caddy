@@ -1,0 +1,68 @@
+name: Build and Push Docker Images
+
+# 当代码推送到 main 分支时触发此工作流
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    # 授予工作流写入 GitHub Packages (ghcr.io) 的权限
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # 步骤 1: 检出您的仓库代码
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 步骤 2: 登录到 GitHub Container Registry (ghcr.io)
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 步骤 3: 构建并推送 Proxy (Caddy) 镜像
+      - name: Build and push Caddy image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./caddy
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/caddy:latest,ghcr.io/${{ github.repository_owner }}/caddy:${{ github.sha }}
+          build-args: |
+            CADDY_VERSION=${{ vars.CADDY_VERSION || '2.10' }}
+
+      # 步骤 4: 构建并推送 Redis 镜像
+      - name: Build and push Redis image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./redis
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/redis:latest,ghcr.io/${{ github.repository_owner }}/redis:${{ github.sha }}
+          build-args: |
+            REDIS_VER=${{ vars.REDIS_VER || '5.0' }}
+
+      # 步骤 5: 构建并推送 MySQL 镜像
+      - name: Build and push MySQL image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./mysql
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/mysql:latest,ghcr.io/${{ github.repository_owner }}/mysql:${{ github.sha }}
+          build-args: |
+            MYSQL_VERSION=${{ vars.MYSQL_VERSION || '8.0' }}
+
+      # 步骤 6: 构建并推送 MongoDB 镜像
+      - name: Build and push MongoDB image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./mongo
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/mongo:latest,ghcr.io/${{ github.repository_owner }}/mongo:${{ github.sha }}
+          build-args: |
+            MONGO_VERSION=${{ vars.MONGO_VERSION || '3.4' }}
