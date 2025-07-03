@@ -1,9 +1,12 @@
 #/etc/hosts
 x-hosts: &hosts
   extra_hosts:
-    - default.dev.com:${CADDY_IP}
+    - default.dev.com:${PROXY_IP}
 
 services:
+
+  ######## proxy ########
+
   proxy:
     build:
       context: ./caddy
@@ -21,7 +24,61 @@ services:
       - caddy_config:/config
     networks:
       backend:
-        ipv4_address: ${CADDY_IP}
+        ipv4_address: ${PROXY_IP}
+
+  proxy-worker1:
+    build:
+      context: ./caddy
+      args:
+        - CADDY_VERSION=${CADDY_VERSION}
+    image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
+    container_name: ${CADDY_NAME}-worker1
+    #    ports:
+    #      - "8001:80"
+    #      - "1443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/conf.d:/etc/caddy/caddy_conf:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      backend: { }
+
+  proxy-worker2:
+    build:
+      context: ./caddy
+      args:
+        - CADDY_VERSION=${CADDY_VERSION}
+    image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
+    container_name: ${CADDY_NAME}-worker2
+    #    ports:
+    #      - "8002:80"
+    #      - "2443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/conf.d:/etc/caddy/caddy_conf:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      backend: { }
+
+  proxy-worker3:
+    build:
+      context: ./caddy
+      args:
+        - CADDY_VERSION=${CADDY_VERSION}
+    image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
+    container_name: ${CADDY_NAME}-worker3
+    #    ports:
+    #      - "8002:80"
+    #      - "2443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/conf.d:/etc/caddy/caddy_conf:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      backend: { }
 
   ######## redis ########
   redis:
@@ -42,6 +99,60 @@ services:
     networks:
       backend:
         ipv4_address: ${REDIS_IP}
+
+  redis-worker1:
+    build:
+      context: ./redis
+      args:
+        - REDIS_VER=${REDIS_VERSION}
+    image: ${AUTHOR}/${REDIS_NAME}:${REDIS_VERSION}
+    container_name: ${REDIS_NAME}-worker1
+    restart: always
+    #    ports:
+    #      - ${REDIS_PORT}:6379
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_CONF_PATH}:/etc/redis/redis.conf
+    networks:
+      backend: { }
+
+  redis-worker2:
+    build:
+      context: ./redis
+      args:
+        - REDIS_VER=${REDIS_VERSION}
+    image: ${AUTHOR}/${REDIS_NAME}:${REDIS_VERSION}
+    container_name: ${REDIS_NAME}-worker2
+    restart: always
+    #    ports:
+    #      - ${REDIS_PORT}:6379
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_CONF_PATH}:/etc/redis/redis.conf
+    networks:
+      backend: { }
+
+  redis-worker3:
+    build:
+      context: ./redis
+      args:
+        - REDIS_VER=${REDIS_VERSION}
+    image: ${AUTHOR}/${REDIS_NAME}:${REDIS_VERSION}
+    container_name: ${REDIS_NAME}-worker3
+    restart: always
+    #    ports:
+    #      - ${REDIS_PORT}:6379
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_CONF_PATH}:/etc/redis/redis.conf
+    networks:
+      backend: { }
 
   ######## mysql ########
   mysql:
@@ -91,6 +202,53 @@ services:
       backend:
         ipv4_address: ${MONGO_IP}
 
+  ######## grpc #########
+  grpc:
+    build:
+      context: ./grpc
+    image: ${AUTHOR}/${GRPC_NAME}:${GRPC_VERSION}
+    container_name: ${GRPC_NAME}
+    restart: always
+    ports:
+      - ${GRPC_PORT}:80
+    volumes:
+      - grpc_data:/app
+    networks:
+      backend: { }
+
+  grpc-worker1:
+    build:
+      context: ./grpc
+    image: ${AUTHOR}/${GRPC_NAME}:${GRPC_VERSION}
+    container_name: ${GRPC_NAME}-worker1
+    restart: always
+    volumes:
+      - grpc_data:/app
+    networks:
+      backend: { }
+
+  grpc-worker2:
+    build:
+      context: ./grpc
+    image: ${AUTHOR}/${GRPC_NAME}:${GRPC_VERSION}
+    container_name: ${GRPC_NAME}-worker2
+    restart: always
+    volumes:
+      - grpc_data:/app
+    networks:
+      backend: { }
+
+  grpc-worker3:
+    build:
+      context: ./grpc
+    image: ${AUTHOR}/${GRPC_NAME}:${GRPC_VERSION}
+    container_name: ${GRPC_NAME}-worker3
+    restart: always
+    volumes:
+      - grpc_data:/app
+    networks:
+      backend: { }
+
 networks:
   backend:
     name: backend
@@ -101,3 +259,5 @@ volumes:
     name: caddy_data
   caddy_config:
     name: caddy_config
+  grpc_data:
+    name: grpc_data
