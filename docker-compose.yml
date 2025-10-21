@@ -128,7 +128,7 @@ services:
     volumes:
       - ${REDIS_DATA_PATH}:/data
       - ./redis/redis-slave.conf:/etc/redis/redis.conf
-    command: redis-server /etc/redis/redis.conf
+    command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     depends_on:
       - redis-master
     networks:
@@ -149,7 +149,7 @@ services:
     volumes:
       - ${REDIS_DATA_PATH}:/data
       - ./redis/redis-slave.conf:/etc/redis/redis.conf
-    command: redis-server /etc/redis/redis.conf
+    command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     depends_on:
       - redis-master
     networks:
