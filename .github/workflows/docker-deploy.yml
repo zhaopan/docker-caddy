@@ -41,8 +41,6 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/caddy:latest
           build-args: |
             CADDY_VERSION=${{ vars.CADDY_VERSION || '2.10' }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       # 步骤 4: 构建并推送 Redis 镜像
       - name: Build and push Redis image
@@ -56,8 +54,6 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/redis:latest
           build-args: |
             REDIS_VER=${{ vars.REDIS_VER || '5.0' }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       # 步骤 5: 构建并推送 MySQL 镜像
       - name: Build and push MySQL image
@@ -71,8 +67,6 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/mysql:latest
           build-args: |
             MYSQL_VERSION=${{ vars.MYSQL_VERSION || '8.0' }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       # 步骤 6: 构建并推送 MongoDB 镜像
       - name: Build and push MongoDB image
@@ -86,8 +80,6 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/mongo:latest
           build-args: |
             MONGO_VERSION=${{ vars.MONGO_VERSION || '3.4' }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       # 步骤 7: 构建并推送 gRPC 镜像
       - name: Build and push gRPC image
@@ -96,7 +88,6 @@ jobs:
           context: ./grpc
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/grpc:latest
+            ghcr.io/${{ github.repository_owner }}/grpc:1.0
             ghcr.io/${{ github.repository_owner }}/grpc:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ghcr.io/${{ github.repository_owner }}/grpc:latest
