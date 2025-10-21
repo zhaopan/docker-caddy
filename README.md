@@ -298,6 +298,7 @@ docker-caddy/
 │   ├── Makefile             # 测试管理脚本
 │   └── README.md            # 测试说明文档
 ├── docker-compose.yml       # Docker 编排
+├── docker-compose.single.yml # 单机模式 Docker 编排
 ├── .env.example             # 环境配置示例
 ├── Makefile                 # 项目管理
 ├── init.sh                  # 初始化脚本
