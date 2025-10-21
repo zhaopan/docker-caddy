@@ -47,7 +47,7 @@ services:
       - ${REDIS_CONF_PATH}:/etc/redis/redis.conf:ro
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: redis-server /etc/redis/redis.conf
+    command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     networks:
       backend:
         ipv4_address: ${REDIS_IP}
