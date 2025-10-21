@@ -107,8 +107,8 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - ${REDIS_DATA_PATH}:/data
-      - ${REDIS_CONF_PATH}:/etc/redis/redis.conf
-    command: redis-server /etc/redis/redis.conf
+      - ${REDIS_CONF_PATH}:/etc/redis/redis.conf:ro
+    command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     networks:
       backend:
         ipv4_address: ${REDIS_IP}
