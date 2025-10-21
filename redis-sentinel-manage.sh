@@ -9,21 +9,42 @@ case "$1" in
         echo "启动 Redis 哨兵模式..."
         echo "1. 启动主节点..."
         docker-compose up -d redis-master
-        sleep 5
+        echo "等待主节点启动..."
+        sleep 10
         
-        echo "2. 启动从节点..."
+        echo "2. 检查主节点状态..."
+        echo "检查容器是否运行..."
+        docker ps | grep redis-master || echo "❌ redis-master 容器未运行"
+        
+        echo "检查容器日志..."
+        docker logs redis-master --tail 10
+        
+        echo "尝试连接 Redis..."
+        until docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping 2>/dev/null | grep -q PONG; do
+            echo "等待主节点就绪... (尝试连接中)"
+            docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping 2>&1 || echo "连接失败，重试中..."
+            sleep 3
+        done
+        echo "✅ 主节点已就绪"
+        
+        echo "3. 启动从节点..."
         docker-compose up -d redis-slave1 redis-slave2
-        sleep 5
+        echo "等待从节点启动..."
+        sleep 10
         
-        echo "3. 配置主从复制..."
+        echo "4. 配置主从复制..."
+        echo "设置主节点为独立模式..."
         docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n SLAVEOF NO ONE
+        echo "配置从节点1复制主节点..."
         docker exec redis-slave1 redis-cli -a CG1rMeyRryFgvElf8n SLAVEOF redis-master 6379
+        echo "配置从节点2复制主节点..."
         docker exec redis-slave2 redis-cli -a CG1rMeyRryFgvElf8n SLAVEOF redis-master 6379
-        sleep 3
-        
-        echo "4. 启动哨兵节点..."
-        docker-compose up -d redis-sentinel1 redis-sentinel2 redis-sentinel3
         sleep 5
+        
+        echo "5. 启动哨兵节点..."
+        docker-compose up -d redis-sentinel1 redis-sentinel2 redis-sentinel3
+        echo "等待哨兵节点启动..."
+        sleep 10
         
         echo "哨兵模式启动完成！"
         echo "主节点: redis-master:6379"
