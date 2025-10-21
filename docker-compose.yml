@@ -19,7 +19,7 @@ services:
       - "443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/sites-enabled:ro
+      - ./caddy/conf.d:/etc/caddy/conf.d:ro
       - caddy_data:/data
       - caddy_config:/config
     environment:
@@ -41,7 +41,7 @@ services:
       - "1443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/sites-enabled:ro
+      - ./caddy/conf.d:/etc/caddy/conf.d:ro
       - caddy_data:/data
       - caddy_config:/config
     environment:
@@ -62,7 +62,7 @@ services:
       - "2443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/sites-enabled:ro
+      - ./caddy/conf.d:/etc/caddy/conf.d:ro
       - caddy_data:/data
       - caddy_config:/config
     environment:
@@ -83,7 +83,7 @@ services:
       - "3443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/sites-enabled:ro
+      - ./caddy/conf.d:/etc/caddy/conf.d:ro
       - caddy_data:/data
       - caddy_config:/config
     environment:
