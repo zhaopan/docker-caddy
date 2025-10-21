@@ -13,11 +13,19 @@ case "$1" in
         sleep 10
         
         echo "2. 检查主节点状态..."
-        until docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping | grep -q PONG; do
-            echo "等待主节点就绪..."
-            sleep 2
+        echo "检查容器是否运行..."
+        docker ps | grep redis-master || echo "❌ redis-master 容器未运行"
+        
+        echo "检查容器日志..."
+        docker logs redis-master --tail 10
+        
+        echo "尝试连接 Redis..."
+        until docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping 2>/dev/null | grep -q PONG; do
+            echo "等待主节点就绪... (尝试连接中)"
+            docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping 2>&1 || echo "连接失败，重试中..."
+            sleep 3
         done
-        echo "主节点已就绪"
+        echo "✅ 主节点已就绪"
         
         echo "3. 启动从节点..."
         docker-compose up -d redis-slave1 redis-slave2
