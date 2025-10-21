@@ -251,15 +251,11 @@ services:
     image: ${AUTHOR}/${MONGO_NAME}:${MONGO_VERSION}
     container_name: ${MONGO_NAME}
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
     volumes:
       - ${MONGO_CONF_PATH}:/etc/mongod.conf:ro
       - ${MONGO_PATH}:/data/db
-    #    command:
-    #      - '--auth'
-    #      - '-f'
-    #      - '/etc/mongod.conf'
     restart: always
     ports:
       - ${MONGO_PORT}:27017
@@ -275,7 +271,7 @@ services:
     container_name: ${GRPC_NAME}
     restart: always
     ports:
-      - ${GRPC_PORT}:80
+      - ${GRPC_PORT}:8000
     volumes:
       - grpc_data:/app
     networks:
