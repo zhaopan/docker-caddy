@@ -42,7 +42,6 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - redis_data:/data
       - ${REDIS_DATA_PATH}:/data
       - ${REDIS_CONF_PATH}:/etc/redis/redis.conf:ro
     environment:
@@ -65,7 +64,6 @@ services:
     ports:
       - "${MYSQL_PORT}:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
       - ${MYSQL_DATA_PATH}:/var/lib/mysql
       - ${MYSQL_CONF_PATH}:/etc/mysql/conf.d/docker.cnf:ro
     environment:
@@ -88,7 +86,6 @@ services:
     ports:
       - "${MONGO_PORT}:27017"
     volumes:
-      - mongo_data:/data/db
       - ${MONGO_PATH}:/data/db
       - ${MONGO_CONF_PATH}:/etc/mongod.conf:ro
     environment:
