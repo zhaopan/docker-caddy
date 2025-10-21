@@ -29,7 +29,6 @@ help:
 	@echo "  redis-start   启动 Redis 哨兵集群"
 	@echo "  redis-stop    停止 Redis 哨兵集群"
 	@echo "  redis-status  检查 Redis 集群状态"
-	@echo "  redis-test    测试 Redis 集群功能"
 	@echo "  redis-logs    查看 Redis 集群日志"
 	@echo ""
 	@echo "Caddy 集群管理:"
@@ -108,13 +107,6 @@ redis-status:
 redis-restart:
 	./redis-sentinel-manage.sh restart
 
-.PHONY: redis-test
-redis-test:
-	./redis-sentinel-manage.sh test
-
-.PHONY: redis-failover
-redis-failover:
-	./redis-sentinel-manage.sh failover
 
 .PHONY: redis-logs
 redis-logs:
@@ -201,8 +193,6 @@ help:
 	@echo "  redis-stop    - 停止 Redis 哨兵集群"
 	@echo "  redis-status  - 检查 Redis 哨兵集群状态"
 	@echo "  redis-restart - 重启 Redis 哨兵集群"
-	@echo "  redis-test    - 测试 Redis 哨兵集群"
-	@echo "  redis-failover- 模拟 Redis 故障转移"
 	@echo "  redis-logs    - 查看 Redis 日志"
 	@echo ""
 	@echo "Caddy 集群:"

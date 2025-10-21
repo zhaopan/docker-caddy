@@ -25,7 +25,7 @@ case "$1" in
             docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping 2>&1 || echo "连接失败，重试中..."
             sleep 3
         done
-        echo "✅ 主节点已就绪"
+        echo "主节点已就绪"
         
         echo "3. 启动从节点..."
         docker-compose up -d redis-slave1 redis-slave2
