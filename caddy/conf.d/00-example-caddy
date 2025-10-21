@@ -1,3 +1,58 @@
-<example>.<domain>.<suffix> {
-    reverse_proxy web-example:3000
+# Site Configuration Template
+# Copy this file and modify for your new site
+# Example: cp 00-example-caddy 06-new-site.caddy
+
+# Replace with your domain
+your-domain.com {
+    # Enable HTTPS automatically
+    tls {
+        # Caddy will automatically get SSL certificate from Let's Encrypt
+    }
+    
+    # Reverse proxy to your service
+    reverse_proxy your-service:port {
+        # Health check
+        health_uri /health
+        health_interval 30s
+        health_timeout 5s
+        
+        # Load balancing (optional)
+        # lb_policy round_robin
+    }
+    
+    # Security headers
+    header {
+        # Security headers
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Cache control (adjust as needed)
+        Cache-Control "public, max-age=3600"
+    }
+    
+    # Gzip compression
+    encode gzip
+    
+    # Logging
+    log {
+        output file /data/logs/your-site.log
+        format json
+        level INFO
+    }
+    
+    # Rate limiting
+    rate_limit {
+        zone your-site {
+            key {remote_host}
+            events 100
+            window 1m
+        }
+    }
+    
+    # Request size limit
+    request_body {
+        max_size 10MB
+    }
 }
