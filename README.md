@@ -23,12 +23,29 @@ cp .env.example .env
 
 # 编辑配置文件（可选）
 vim .env
+```
 
-# 启动开发环境
+### 2. 选择部署模式
+
+#### 集群模式（生产推荐）
+```bash
+# 启动开发环境（集群模式）
 make dev
 ```
 
-### 2. 服务组件
+#### 单机模式（开发推荐）
+```bash
+# 启动单机模式
+make up-single
+
+# 查看单机模式状态
+make status-single
+
+# 查看单机模式日志
+make logs-single
+```
+
+### 3. 服务组件
 
 | 服务 | 版本 | 端口 | 说明 |
 |------|------|------|------|
@@ -108,16 +125,23 @@ make redis-logs
 make help
 
 # 开发环境管理
-make dev            # 启动开发环境
+make dev            # 启动开发环境（集群模式）
 make stop-all       # 停止所有服务
 make status         # 查看所有服务状态
 make full-test      # 完整测试流程
 
-# 服务管理
+# 集群模式管理
 make build          # 构建 Docker 镜像
 make up             # 启动 Docker 服务
 make down           # 停止 Docker 服务
 make clean          # 清理 Docker 镜像
+
+# 单机模式管理
+make build-single   # 构建单机模式镜像
+make up-single      # 启动单机模式服务
+make down-single    # 停止单机模式服务
+make logs-single    # 查看单机模式日志
+make status-single  # 查看单机模式状态
 ```
 
 ### 集群管理
@@ -204,7 +228,7 @@ graph TD
 
 1. **复制模板文件**：
    ```bash
-   cp caddy/conf.d/00-example-caddy caddy/conf.d/06-your-site.caddy
+   cp caddy/conf.d/00-example-caddy caddy/conf.d/05-your-site.caddy
    ```
 
 2. **修改配置**：

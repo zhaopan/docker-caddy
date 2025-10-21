@@ -1,0 +1,120 @@
+# 单机模式 Docker Compose 配置
+# 适用于开发环境或小规模部署
+
+version: '3.8'
+
+services:
+  ######## Caddy 单机模式 ########
+  caddy:
+    build:
+      context: ./caddy
+      args:
+        - CADDY_VERSION=${CADDY_VERSION}
+    image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
+    container_name: ${CADDY_NAME}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/conf.d:/etc/caddy/sites-enabled:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      backend:
+        ipv4_address: ${PROXY_IP}
+    restart: unless-stopped
+
+  ######## Redis 单机模式 ########
+  redis:
+    build:
+      context: ./redis
+      args:
+        - REDIS_VER=${REDIS_VERSION}
+    image: ${AUTHOR}/${REDIS_NAME}:${REDIS_VERSION}
+    container_name: ${REDIS_NAME}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      backend:
+        ipv4_address: ${REDIS_IP}
+    restart: unless-stopped
+
+  ######## MySQL 单机模式 ########
+  mysql:
+    build:
+      context: ./mysql
+      args:
+        - MYSQL_VERSION=${MYSQL_VERSION}
+    image: ${AUTHOR}/${MYSQL_NAME}:${MYSQL_VERSION}
+    container_name: ${MYSQL_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    networks:
+      backend:
+        ipv4_address: ${MYSQL_IP}
+    restart: unless-stopped
+
+  ######## MongoDB 单机模式 ########
+  mongo:
+    build:
+      context: ./mongo
+      args:
+        - MONGO_VERSION=${MONGO_VERSION}
+    image: ${AUTHOR}/${MONGO_NAME}:${MONGO_VERSION}
+    container_name: ${MONGO_NAME}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
+    networks:
+      backend:
+        ipv4_address: ${MONGO_IP}
+    restart: unless-stopped
+
+  ######## gRPC 单机模式 ########
+  grpc:
+    build:
+      context: ./grpc
+    image: ${AUTHOR}/${GRPC_NAME}:${GRPC_VERSION}
+    container_name: ${GRPC_NAME}
+    ports:
+      - "${GRPC_PORT}:8000"
+    volumes:
+      - grpc_data:/app
+    networks:
+      backend: {}
+    restart: unless-stopped
+
+networks:
+  backend:
+    name: backend
+    external: true
+
+volumes:
+  caddy_data:
+    name: caddy_data
+  caddy_config:
+    name: caddy_config
+  redis_data:
+    name: redis_data
+  mysql_data:
+    name: mysql_data
+  mongo_data:
+    name: mongo_data
+  grpc_data:
+    name: grpc_data

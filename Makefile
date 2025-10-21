@@ -1,8 +1,55 @@
 # Docker Caddy 项目主 Makefile
+# 支持集群模式和单机模式
 
-VERSION = $(shell git describe --always --tags)
-IMAGE = docker-caddy
-BINARY = docker-caddy
+# 项目信息
+PROJECT_NAME = docker-caddy
+VERSION = $(shell git describe --always --tags 2>/dev/null || echo "dev")
+
+# 帮助信息
+.PHONY: help
+help:
+	@echo "Docker Caddy 项目管理工具"
+	@echo ""
+	@echo "集群模式命令:"
+	@echo "  build         构建 Docker 镜像"
+	@echo "  up            启动 Docker 服务"
+	@echo "  down          停止 Docker 服务"
+	@echo "  dev           启动开发环境"
+	@echo "  status        查看服务状态"
+	@echo "  logs          查看服务日志"
+	@echo ""
+	@echo "单机模式命令:"
+	@echo "  build-single  构建单机模式镜像"
+	@echo "  up-single     启动单机模式服务"
+	@echo "  down-single   停止单机模式服务"
+	@echo "  status-single 查看单机模式状态"
+	@echo "  logs-single   查看单机模式日志"
+	@echo ""
+	@echo "Redis 集群管理:"
+	@echo "  redis-start   启动 Redis 哨兵集群"
+	@echo "  redis-stop    停止 Redis 哨兵集群"
+	@echo "  redis-status  检查 Redis 集群状态"
+	@echo "  redis-test    测试 Redis 集群功能"
+	@echo "  redis-logs    查看 Redis 集群日志"
+	@echo ""
+	@echo "Caddy 集群管理:"
+	@echo "  caddy-start   启动 Caddy 集群"
+	@echo "  caddy-stop    停止 Caddy 集群"
+	@echo "  caddy-status  检查 Caddy 集群状态"
+	@echo "  caddy-logs    查看 Caddy 集群日志"
+	@echo ""
+	@echo "测试和开发:"
+	@echo "  test-go       运行 Go 语言测试"
+	@echo "  test-py       运行 Python 语言测试"
+	@echo "  test-all      运行所有测试"
+	@echo "  web-go        启动 Go Web 应用"
+	@echo "  web-py        启动 Python Web 应用"
+	@echo "  web-all       启动所有 Web 应用"
+	@echo ""
+	@echo "其他命令:"
+	@echo "  clean         清理 Docker 镜像"
+	@echo "  stop-all      停止所有服务"
+	@echo "  full-test     完整测试流程"
 
 # Docker 操作
 .PHONY: build
@@ -17,11 +64,32 @@ up:
 down:
 	docker-compose down
 
+# 单机模式操作
+.PHONY: build-single
+build-single:
+	docker-compose -f docker-compose.single.yml build
+
+.PHONY: up-single
+up-single:
+	docker-compose -f docker-compose.single.yml up -d
+
+.PHONY: down-single
+down-single:
+	docker-compose -f docker-compose.single.yml down
+
+.PHONY: logs-single
+logs-single:
+	docker-compose -f docker-compose.single.yml logs -f
+
+.PHONY: status-single
+status-single:
+	docker-compose -f docker-compose.single.yml ps
+
 .PHONY: clean
 clean:
-	rm -rf $(BINARY)
+	rm -rf $(PROJECT_NAME)
 	docker rmi -f $(shell docker images -f "dangling=true" -q) 2> /dev/null; true
-	docker rmi -f $(IMAGE):latest $(IMAGE):$(VERSION) 2> /dev/null; true
+	docker rmi -f $(PROJECT_NAME):latest $(PROJECT_NAME):$(VERSION) 2> /dev/null; true
 
 # Redis 哨兵集群管理
 .PHONY: redis-start
