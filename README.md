@@ -1,72 +1,175 @@
 # docker-caddy 常规脚手架
 
-## init
+基于 Docker Compose 的现代化开发环境，支持 Caddy 集群和 Redis 哨兵模式。
+
+## 项目特性
+
+- **Caddy 集群模式**: 1个主实例 + 3个worker，支持负载均衡和故障转移
+- **Redis 哨兵模式**: 1个主节点 + 2个从节点 + 3个哨兵，提供高可用性
+- **多语言支持**: Go、Python 测试和 Web 应用示例
+- **统一管理**: Makefile 和专门脚本提供便捷的管理方式
+- **开发友好**: 完整的测试套件和开发环境配置
+
+## 快速开始
+
+### 1. 初始化环境
 
 ```bash
-# copy 配置文件，根据自己需求修改配置文件
+# 初始化 Docker 网络和数据目录
+./init.sh
+
+# 复制环境配置文件（根据需求调整）
 cp .env.example .env
-chmod +x init.sh install.sh startup.sh
-sh init.sh
+
+# 编辑配置文件（可选）
+vim .env
+
+# 启动开发环境
+make dev
 ```
 
-## services-names
+### 2. 服务组件
+
+| 服务 | 版本 | 端口 | 说明 |
+|------|------|------|------|
+| Redis | 5.x (默认) | 6379-6381 | 哨兵模式，支持故障转移 |
+| MySQL | 8.0 (默认) | 3306 | 关系型数据库 |
+| MongoDB | 3.4 (默认) | 27017 | 文档数据库 |
+| Caddy | latest | 80/443 | 集群模式，负载均衡 |
+| Go | 1.24 | 8080 | Web 应用示例 |
+| Python | 3.x | 8081 | Web 应用示例 |
+
+## 集群架构
+
+### Caddy 集群模式
 
 ```bash
-# redis 4.x | 5.x(默认) | 6.x
-# mysql 5.7.40 | 8.0(默认)
-# golang 1.24(默认)
-# mongo 3.4(默认)
-# caddy latest(默认)
+# 启动 Caddy 集群
+make caddy-start
+
+# 检查集群状态
+make caddy-status
+
+# 查看集群日志
+make caddy-logs
+
+# 停止集群
+make caddy-stop
 ```
 
-## build
+**集群架构**:
+- 主入口: proxy (端口 80/443) - 负载均衡器
+- Worker1: proxy-worker1 (端口 8001/1443)
+- Worker2: proxy-worker2 (端口 8002/2443)  
+- Worker3: proxy-worker3 (端口 8003/3443)
+
+**特性**:
+- 轮询负载均衡算法
+- 健康检查机制
+- 自动故障转移
+- 统一日志记录
+
+### Redis 哨兵模式
 
 ```bash
-# build
+# 启动 Redis 哨兵模式
+make redis-start
+
+# 检查哨兵状态
+make redis-status
+
+# 测试哨兵功能
+make redis-test
+
+# 模拟故障转移
+make redis-failover
+
+# 查看哨兵日志
+make redis-logs
+```
+
+**哨兵架构**:
+- 主节点: redis-master (端口 6379) - 处理写操作
+- 从节点: redis-slave1 (端口 6380), redis-slave2 (端口 6381) - 复制主节点数据
+- 哨兵节点: redis-sentinel1 (端口 26379), redis-sentinel2 (端口 26380), redis-sentinel3 (端口 26381) - 监控和故障转移
+
+**特性**:
+- 自动故障检测和转移
+- 主从自动切换
+- 配置自动更新
+- 高可用性保证
+
+## 管理命令
+
+### 常用命令
+
+```bash
+# 查看所有可用命令
+make help
+
+# 开发环境管理
+make dev            # 启动开发环境
+make stop-all       # 停止所有服务
+make status         # 查看所有服务状态
+make full-test      # 完整测试流程
+
+# 服务管理
+make build          # 构建 Docker 镜像
+make up             # 启动 Docker 服务
+make down           # 停止 Docker 服务
+make clean          # 清理 Docker 镜像
+```
+
+### 集群管理
+
+```bash
+# Redis 哨兵集群
+make redis-start    # 启动 Redis 哨兵集群
+make redis-stop     # 停止 Redis 哨兵集群
+make redis-status   # 检查集群状态
+make redis-test     # 测试集群功能
+make redis-failover # 模拟故障转移
+make redis-logs     # 查看集群日志
+
+# Caddy 集群
+make caddy-start    # 启动 Caddy 集群
+make caddy-stop     # 停止 Caddy 集群
+make caddy-status   # 检查集群状态
+make caddy-logs     # 查看集群日志
+```
+
+### 测试和开发
+
+```bash
+# 测试管理
+make test-go        # 运行 Go 语言测试
+make test-py        # 运行 Python 语言测试
+make test-all       # 运行所有测试
+
+# Web 应用管理
+make web-go         # 启动 Go Web 应用
+make web-py         # 启动 Python Web 应用
+make web-all        # 启动所有 Web 应用
+```
+
+### 传统 Docker Compose 方式
+
+```bash
+# 构建和启动
 docker-compose build <services-names>
-```
-
-## run | restart | stop | down | rebuild
-
-```bash
-# start 首次执行耗时较久，耐心等待
 docker-compose up -d <services-names>
 
-# restart 修改配置文件后重启即可
+# 重启和重建
 docker-compose restart <services-names>
-
-# rebuild 修改 dockerfile 或者 env 文件之后 rebuild 可生效
 docker-compose up -d --build <services-names>
 
-# stop 停止
+# 停止和清理
 docker-compose stop
-
-# down 停止 + 删除
 docker-compose down
-
-# down -rmi 停止 + 删除容器 + 删除镜像
 docker-compose down --rmi all
 ```
 
-## make `build` | `up` | `stop` | `down`
-
-[Install make](https://github.com/zhaopan/pub/01.home/make.md)
-
-```bash
-# build
-make build
-
-# up
-make up
-
-# stop
-make stop
-
-# down
-make down
-```
-
-## 网络拓扑图
+## 网络架构
 
 ```mermaid
 graph TD
@@ -87,12 +190,104 @@ graph TD
     end
 ```
 
-## thanks
+## 站点配置
 
-[zhaopan/docker-devops](https://github.com/zhaopan/docker-devops)
+### 已配置的站点
 
-[ogenes/docker-lnmp](https://github.com/ogenes/docker-lnmp)
+| 域名 | 用途 | 后端服务 | 端口 | 配置文件 |
+|------|------|----------|------|----------|
+| www | 主站点 | www-service | 3000 | 02-www.caddy |
+| api | API 接口 | api-service | 8080 | 03-api.caddy |
+| admin | 管理后台 | admin-service | 8081 | 04-admin.caddy |
 
-[fatedier/frp](https://github.com/fatedier/frp)
+### 添加新站点
 
-[snowdreamtech/frp](https://github.com/snowdreamtech/frp)
+1. **复制模板文件**：
+   ```bash
+   cp caddy/conf.d/00-example-caddy caddy/conf.d/06-your-site.caddy
+   ```
+
+2. **修改配置**：
+   - 替换域名：`your-domain.com` → `your-site.com`
+   - 修改后端服务：`your-service:port` → `your-service:8080`
+   - 调整日志文件：`your-site.log` → `your-site.log`
+   - 根据需要调整其他配置
+
+3. **重启 Caddy**：
+   ```bash
+   make caddy-restart
+   ```
+
+### 站点特性
+
+- **自动 HTTPS**：所有站点自动获取 Let's Encrypt SSL 证书
+- **安全头**：包含完整的安全头配置
+- **缓存控制**：针对不同文件类型的缓存策略
+- **压缩**：Gzip 压缩支持
+- **限流**：防止滥用和 DDoS 攻击
+- **健康检查**：自动检测后端服务状态
+- **日志记录**：详细的访问日志
+
+## 项目结构
+
+```
+docker-caddy/
+├── caddy/                   # Caddy 配置
+│   ├── Caddyfile            # 主配置文件
+│   ├── conf.d/              # 站点配置
+│   │   ├── 00-example-caddy # 站点配置模板
+│   │   ├── 02-www.caddy     # 主站点配置
+│   │   ├── 03-api.caddy     # API 接口配置
+│   │   └── 04-admin.caddy   # 管理后台配置
+│   └── Dockerfile           # Caddy 镜像
+├── redis/                   # Redis 配置
+│   ├── redis4.conf          # Redis 4.x 配置
+│   ├── redis5.conf          # Redis 5.x 配置
+│   ├── redis6.conf          # Redis 6.x 配置
+│   ├── redis-slave.conf     # 从节点配置
+│   ├── sentinel.conf        # 哨兵配置
+│   └── Dockerfile           # Redis 镜像
+├── mysql/                   # MySQL 配置
+│   ├── docker.cnf           # MySQL 配置
+│   └── Dockerfile           # MySQL 镜像
+├── mongo/                   # MongoDB 配置
+│   ├── mongod.conf          # MongoDB 配置
+│   └── Dockerfile           # MongoDB 镜像
+├── grpc/                    # gRPC 服务
+│   ├── main.go              # gRPC 服务代码
+│   ├── go.mod               # Go 模块文件
+│   ├── go.sum               # Go 依赖锁定
+│   └── Dockerfile           # gRPC 镜像
+├── test/                    # 测试代码
+│   ├── go/                  # Go 语言测试
+│   │   ├── redis-config.go  # Redis 配置
+│   │   ├── test-redis.go    # Redis 测试
+│   │   ├── web-app.go       # Web 应用
+│   │   ├── go.mod           # Go 模块
+│   │   └── Makefile         # Go 构建脚本
+│   ├── py/                  # Python 语言测试
+│   │   ├── redis_config.py  # Redis 配置
+│   │   ├── test_redis.py    # Redis 测试
+│   │   ├── web_app.py       # Web 应用
+│   │   ├── requirements.txt # Python 依赖
+│   │   └── Makefile         # Python 构建脚本
+│   ├── Makefile             # 测试管理脚本
+│   └── README.md            # 测试说明文档
+├── docker-compose.yml       # Docker 编排
+├── .env.example             # 环境配置示例
+├── Makefile                 # 项目管理
+├── init.sh                  # 初始化脚本
+├── cluster-manage.sh        # Caddy 集群管理
+├── redis-sentinel-manage.sh # Redis 哨兵管理
+├── LICENSE                  # 开源许可证
+└── README.md                # 项目文档
+```
+
+## 致谢
+
+感谢以下开源项目的贡献：
+
+- [zhaopan/docker-devops](https://github.com/zhaopan/docker-devops)
+- [ogenes/docker-lnmp](https://github.com/ogenes/docker-lnmp)
+- [fatedier/frp](https://github.com/fatedier/frp)
+- [snowdreamtech/frp](https://github.com/snowdreamtech/frp)

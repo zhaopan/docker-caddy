@@ -1,1 +1,19 @@
-import sites-enabled/*.caddy
+# Caddy 集群配置
+{
+    # 集群配置 - 使用文件存储
+    cluster {
+        storage file {
+            path /data/cluster
+        }
+    }
+    
+    # 日志配置
+    log {
+        output file /data/logs/caddy.log
+        format console
+        level INFO
+    }
+}
+
+# 导入站点配置
+import conf.d/*.caddy
