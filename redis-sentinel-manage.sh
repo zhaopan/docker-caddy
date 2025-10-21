@@ -14,15 +14,15 @@ case "$1" in
         
         echo "2. 检查主节点状态..."
         echo "检查容器是否运行..."
-        docker ps | grep redis-master || echo "❌ redis-master 容器未运行"
+        docker ps | grep redis-master || echo "redis-master 容器未运行"
         
         echo "检查容器日志..."
         docker logs redis-master --tail 10
         
         echo "尝试连接 Redis..."
-        until docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping 2>/dev/null | grep -q PONG; do
+        until docker exec redis-master redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n ping 2>/dev/null | grep -q PONG; do
             echo "等待主节点就绪... (尝试连接中)"
-            docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n ping 2>&1 || echo "连接失败，重试中..."
+            docker exec redis-master redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n ping 2>&1 || echo "连接失败，重试中..."
             sleep 3
         done
         echo "主节点已就绪"
@@ -34,11 +34,11 @@ case "$1" in
         
         echo "4. 配置主从复制..."
         echo "设置主节点为独立模式..."
-        docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n SLAVEOF NO ONE
+        docker exec redis-master redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n SLAVEOF NO ONE
         echo "配置从节点1复制主节点..."
-        docker exec redis-slave1 redis-cli -a CG1rMeyRryFgvElf8n SLAVEOF redis-master 6379
+        docker exec redis-slave1 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n SLAVEOF redis-master 6379
         echo "配置从节点2复制主节点..."
-        docker exec redis-slave2 redis-cli -a CG1rMeyRryFgvElf8n SLAVEOF redis-master 6379
+        docker exec redis-slave2 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n SLAVEOF redis-master 6379
         sleep 5
         
         echo "5. 启动哨兵节点..."
@@ -71,11 +71,11 @@ case "$1" in
         docker-compose ps redis-master redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3
         echo ""
         echo "=== 主节点信息 ==="
-        docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|connected_slaves|master_host|master_port)"
+        docker exec redis-master redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|connected_slaves|master_host|master_port)"
         echo ""
         echo "=== 从节点信息 ==="
-        docker exec redis-slave1 redis-cli -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port|master_link_status)"
-        docker exec redis-slave2 redis-cli -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port|master_link_status)"
+        docker exec redis-slave1 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port|master_link_status)"
+        docker exec redis-slave2 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port|master_link_status)"
         echo ""
         echo "=== 哨兵信息 ==="
         docker exec redis-sentinel1 redis-cli -p 26379 SENTINEL masters
@@ -90,10 +90,10 @@ case "$1" in
     "test")
         echo "测试哨兵模式..."
         echo "1. 写入测试数据到主节点..."
-        docker exec redis-master redis-cli -a CG1rMeyRryFgvElf8n SET test_key "Hello Sentinel Mode"
+        docker exec redis-master redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n SET test_key "Hello Sentinel Mode"
         echo "2. 从从节点读取数据..."
-        docker exec redis-slave1 redis-cli -a CG1rMeyRryFgvElf8n GET test_key
-        docker exec redis-slave2 redis-cli -a CG1rMeyRryFgvElf8n GET test_key
+        docker exec redis-slave1 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n GET test_key
+        docker exec redis-slave2 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n GET test_key
         echo "3. 通过哨兵查询主节点地址..."
         docker exec redis-sentinel1 redis-cli -p 26379 SENTINEL get-master-addr-by-name redis-master
         ;;
@@ -106,8 +106,8 @@ case "$1" in
         echo "3. 检查新的主节点..."
         docker exec redis-sentinel1 redis-cli -p 26379 SENTINEL get-master-addr-by-name redis-master
         echo "4. 检查从节点状态..."
-        docker exec redis-slave1 redis-cli -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port)"
-        docker exec redis-slave2 redis-cli -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port)"
+        docker exec redis-slave1 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port)"
+        docker exec redis-slave2 redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n INFO replication | grep -E "(role|master_host|master_port)"
         echo "故障转移测试完成！"
         ;;
     "rebuild")

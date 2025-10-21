@@ -81,6 +81,8 @@ make caddy-logs
 make caddy-stop
 ```
 
+> **详细文档**: 查看 [Caddy 配置文档](caddy/README.md) 了解完整的配置说明、使用方法和故障排除指南。
+
 **集群架构**:
 - 主入口: proxy (端口 80/443) - 负载均衡器
 - Worker1: proxy-worker1 (端口 8001/1443)
@@ -111,6 +113,8 @@ make redis-failover
 # 查看哨兵日志
 make redis-logs
 ```
+
+> **详细文档**: 查看 [Redis 哨兵模式配置文档](redis/README.md) 了解完整的配置说明、使用注意事项和故障排除指南。
 
 **哨兵架构**:
 - 主节点: redis-master (端口 6379) - 处理写操作
@@ -265,6 +269,7 @@ graph TD
 ```
 docker-caddy/
 ├── caddy/                   # Caddy 配置
+│   ├── README.md            # Caddy 配置详细说明
 │   ├── Caddyfile            # 主配置文件
 │   ├── conf.d/              # 站点配置
 │   │   ├── 00-example-caddy # 站点配置模板
@@ -273,6 +278,7 @@ docker-caddy/
 │   │   └── 04-admin.caddy   # 管理后台配置
 │   └── Dockerfile           # Caddy 镜像
 ├── redis/                   # Redis 配置
+│   ├── README.md            # Redis 哨兵模式详细说明
 │   ├── redis4.conf          # Redis 4.x 配置
 │   ├── redis5.conf          # Redis 5.x 配置
 │   ├── redis6.conf          # Redis 6.x 配置
