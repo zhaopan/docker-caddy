@@ -167,7 +167,7 @@ services:
     ports:
       - "26379:26379"
     volumes:
-      - ./redis/sentinel.conf:/etc/redis/sentinel.conf:ro
+      - ./redis/sentinel.conf:/etc/redis/sentinel.conf
       - ${REDIS_DATA_PATH}:/data
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     depends_on:
