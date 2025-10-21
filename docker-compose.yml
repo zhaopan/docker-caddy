@@ -167,13 +167,11 @@ services:
     ports:
       - "26379:26379"
     volumes:
-      - ./redis/sentinel.conf:/etc/redis/sentinel.conf
+      - ./redis/sentinel.conf:/etc/redis/sentinel.conf:ro
       - ${REDIS_DATA_PATH}:/data
-    command: redis-sentinel /etc/redis/sentinel.conf
+    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     depends_on:
       - redis-master
-      - redis-slave1
-      - redis-slave2
     networks:
       backend: { }
 
@@ -190,11 +188,9 @@ services:
     volumes:
       - ./redis/sentinel.conf:/etc/redis/sentinel.conf
       - ${REDIS_DATA_PATH}:/data
-    command: redis-sentinel /etc/redis/sentinel.conf
+    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     depends_on:
       - redis-master
-      - redis-slave1
-      - redis-slave2
     networks:
       backend: { }
 
@@ -211,11 +207,9 @@ services:
     volumes:
       - ./redis/sentinel.conf:/etc/redis/sentinel.conf
       - ${REDIS_DATA_PATH}:/data
-    command: redis-sentinel /etc/redis/sentinel.conf
+    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     depends_on:
       - redis-master
-      - redis-slave1
-      - redis-slave2
     networks:
       backend: { }
 
