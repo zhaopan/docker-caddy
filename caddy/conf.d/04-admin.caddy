@@ -1,5 +1,8 @@
 # Admin Site Configuration
 admin {
+    # TLS configuration (development)
+    tls internal
+    
     # Reverse proxy to admin service
     reverse_proxy admin-service:8081 {
         # Health check

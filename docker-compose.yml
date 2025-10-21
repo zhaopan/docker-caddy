@@ -24,7 +24,10 @@ services:
       - caddy_config:/config
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
-      - CADDY_CLUSTER_STORAGE=file
+      - CADDY_CLUSTER_STORAGE=redis
+      - CADDY_CLUSTER_STORAGE_REDIS_ADDRESS=redis-master:6379
+      - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=CG1rMeyRryFgvElf8n
+      - CADDY_CLUSTER_STORAGE_REDIS_DB=1
     networks:
       backend:
         ipv4_address: ${PROXY_IP}
@@ -46,7 +49,10 @@ services:
       - caddy_config:/config
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
-      - CADDY_CLUSTER_STORAGE=file
+      - CADDY_CLUSTER_STORAGE=redis
+      - CADDY_CLUSTER_STORAGE_REDIS_ADDRESS=redis-master:6379
+      - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=CG1rMeyRryFgvElf8n
+      - CADDY_CLUSTER_STORAGE_REDIS_DB=1
     networks:
       backend: { }
 
@@ -67,7 +73,10 @@ services:
       - caddy_config:/config
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
-      - CADDY_CLUSTER_STORAGE=file
+      - CADDY_CLUSTER_STORAGE=redis
+      - CADDY_CLUSTER_STORAGE_REDIS_ADDRESS=redis-master:6379
+      - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=CG1rMeyRryFgvElf8n
+      - CADDY_CLUSTER_STORAGE_REDIS_DB=1
     networks:
       backend: { }
 
@@ -88,7 +97,10 @@ services:
       - caddy_config:/config
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
-      - CADDY_CLUSTER_STORAGE=file
+      - CADDY_CLUSTER_STORAGE=redis
+      - CADDY_CLUSTER_STORAGE_REDIS_ADDRESS=redis-master:6379
+      - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=CG1rMeyRryFgvElf8n
+      - CADDY_CLUSTER_STORAGE_REDIS_DB=1
     networks:
       backend: { }
 

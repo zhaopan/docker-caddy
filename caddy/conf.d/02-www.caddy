@@ -1,5 +1,8 @@
 # Home Site Configuration
 www {
+    # TLS configuration (development)
+    tls internal
+    
     # Reverse proxy to home service
     reverse_proxy home-service:3000 {
         # Health check
