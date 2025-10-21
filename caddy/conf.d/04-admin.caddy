@@ -1,0 +1,85 @@
+# Admin Site Configuration
+admin {
+    # Enable HTTPS automatically
+    tls {
+        # Caddy will automatically get SSL certificate from Let's Encrypt
+    }
+    
+    # Reverse proxy to admin service
+    reverse_proxy admin-service:8081 {
+        # Health check
+        health_uri /health
+        health_interval 30s
+        health_timeout 5s
+    }
+    
+    # Security headers
+    header {
+        # Security headers
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Cache control for images
+        Cache-Control "public, max-age=31536000" {
+            path *.jpg
+            path *.jpeg
+            path *.png
+            path *.gif
+            path *.webp
+            path *.svg
+            path *.ico
+        }
+        
+        # Cache control for other static assets
+        Cache-Control "public, max-age=86400" {
+            path *.css
+            path *.js
+        }
+    }
+    
+    # Image optimization
+    @images {
+        path *.jpg
+        path *.jpeg
+        path *.png
+        path *.gif
+        path *.webp
+    }
+    
+    # Serve images with proper headers
+    header @images {
+        Content-Type "image/*"
+        Cache-Control "public, max-age=31536000"
+    }
+    
+    # Gzip compression (for CSS/JS)
+    encode gzip {
+        ext .css
+        ext .js
+        ext .html
+        ext .txt
+    }
+    
+    # Logging
+    log {
+        output file /data/logs/admin.log
+        format json
+        level INFO
+    }
+    
+    # Rate limiting for admin requests
+    rate_limit {
+        zone admin {
+            key {remote_host}
+            events 200
+            window 1m
+        }
+    }
+    
+    # File size limit for uploads
+    request_body {
+        max_size 50MB
+    }
+}
