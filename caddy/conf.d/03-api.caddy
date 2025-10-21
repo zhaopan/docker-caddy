@@ -1,19 +1,11 @@
 # API Site Configuration
 api {
-    # Enable HTTPS automatically
-    tls {
-        # Caddy will automatically get SSL certificate from Let's Encrypt
-    }
-    
     # Reverse proxy to API service
     reverse_proxy api-service:8080 {
         # Health check
         health_uri /health
         health_interval 30s
         health_timeout 5s
-        
-        # Load balancing
-        lb_policy round_robin
     }
     
     # CORS configuration
@@ -29,10 +21,6 @@ api {
         X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block"
         Referrer-Policy "strict-origin-when-cross-origin"
-        
-        # API specific headers
-        X-API-Version "1.0"
-        X-Response-Time "{http.request.duration}"
     }
     
     # Handle preflight requests
@@ -49,19 +37,5 @@ api {
         output file /data/logs/api.log
         format json
         level INFO
-    }
-    
-    # Rate limiting for API
-    rate_limit {
-        zone api {
-            key {remote_host}
-            events 1000
-            window 1m
-        }
-    }
-    
-    # Request size limit
-    request_body {
-        max_size 10MB
     }
 }

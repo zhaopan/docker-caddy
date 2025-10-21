@@ -1,10 +1,5 @@
 # Home Site Configuration
 www {
-    # Enable HTTPS automatically
-    tls {
-        # Caddy will automatically get SSL certificate from Let's Encrypt
-    }
-    
     # Reverse proxy to home service
     reverse_proxy home-service:3000 {
         # Health check
@@ -20,18 +15,6 @@ www {
         X-Frame-Options "SAMEORIGIN"
         X-XSS-Protection "1; mode=block"
         Referrer-Policy "strict-origin-when-cross-origin"
-        
-        # Cache control for static assets
-        Cache-Control "public, max-age=31536000" {
-            path *.css
-            path *.js
-            path *.png
-            path *.jpg
-            path *.jpeg
-            path *.gif
-            path *.svg
-            path *.ico
-        }
     }
     
     # Gzip compression
@@ -42,14 +25,5 @@ www {
         output file /data/logs/home.log
         format json
         level INFO
-    }
-    
-    # Rate limiting
-    rate_limit {
-        zone static {
-            key {remote_host}
-            events 100
-            window 1m
-        }
     }
 }
