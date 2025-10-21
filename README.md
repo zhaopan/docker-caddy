@@ -35,14 +35,21 @@ make dev
 
 #### 单机模式（开发推荐）
 ```bash
+# 使用专门的单机模式 Makefile
+make -f Makefile.single help
+
 # 启动单机模式
-make up-single
+make -f Makefile.single up
 
 # 查看单机模式状态
-make status-single
+make -f Makefile.single status
 
 # 查看单机模式日志
-make logs-single
+make -f Makefile.single logs
+
+# 启动特定服务
+make -f Makefile.single caddy
+make -f Makefile.single redis
 ```
 
 ### 3. 服务组件
@@ -136,12 +143,13 @@ make up             # 启动 Docker 服务
 make down           # 停止 Docker 服务
 make clean          # 清理 Docker 镜像
 
-# 单机模式管理
-make build-single   # 构建单机模式镜像
-make up-single      # 启动单机模式服务
-make down-single    # 停止单机模式服务
-make logs-single    # 查看单机模式日志
-make status-single  # 查看单机模式状态
+# 单机模式管理（使用专门的 Makefile）
+make -f Makefile.single help     # 查看单机模式帮助
+make -f Makefile.single build    # 构建单机模式镜像
+make -f Makefile.single up       # 启动单机模式服务
+make -f Makefile.single down     # 停止单机模式服务
+make -f Makefile.single logs     # 查看单机模式日志
+make -f Makefile.single status   # 查看单机模式状态
 ```
 
 ### 集群管理

@@ -18,12 +18,8 @@ help:
 	@echo "  status        查看服务状态"
 	@echo "  logs          查看服务日志"
 	@echo ""
-	@echo "单机模式命令:"
-	@echo "  build-single  构建单机模式镜像"
-	@echo "  up-single     启动单机模式服务"
-	@echo "  down-single   停止单机模式服务"
-	@echo "  status-single 查看单机模式状态"
-	@echo "  logs-single   查看单机模式日志"
+	@echo "单机模式:"
+	@echo "  使用 'make -f Makefile.single help' 查看单机模式命令"
 	@echo ""
 	@echo "Redis 集群管理:"
 	@echo "  redis-start   启动 Redis 哨兵集群"
@@ -63,26 +59,6 @@ up:
 down:
 	docker-compose down
 
-# 单机模式操作
-.PHONY: build-single
-build-single:
-	docker-compose -f docker-compose.single.yml build
-
-.PHONY: up-single
-up-single:
-	docker-compose -f docker-compose.single.yml up -d
-
-.PHONY: down-single
-down-single:
-	docker-compose -f docker-compose.single.yml down
-
-.PHONY: logs-single
-logs-single:
-	docker-compose -f docker-compose.single.yml logs -f
-
-.PHONY: status-single
-status-single:
-	docker-compose -f docker-compose.single.yml ps
 
 .PHONY: clean
 clean:
@@ -201,6 +177,9 @@ help:
 	@echo "  caddy-status  - 检查 Caddy 集群状态"
 	@echo "  caddy-restart - 重启 Caddy 集群"
 	@echo "  caddy-logs    - 查看 Caddy 日志"
+	@echo ""
+	@echo "单机模式:"
+	@echo "  使用 'make -f Makefile.single help' 查看单机模式命令"
 	@echo ""
 	@echo "测试管理:"
 	@echo "  test-go       - 运行 Go 语言测试"

@@ -1,0 +1,130 @@
+# Docker Caddy 单机模式 Makefile
+# 专门用于单机模式的管理
+
+# 项目信息
+PROJECT_NAME = docker-caddy-single
+VERSION = $(shell git describe --always --tags 2>/dev/null || echo "dev")
+
+# Docker Compose 文件
+COMPOSE_FILE = docker-compose.single.yml
+
+# 帮助信息
+.PHONY: help
+help:
+	@echo "Docker Caddy 单机模式管理工具"
+	@echo ""
+	@echo "基础管理命令:"
+	@echo "  build         构建单机模式镜像"
+	@echo "  up            启动单机模式服务"
+	@echo "  down          停止单机模式服务"
+	@echo "  start         启动已停止的服务"
+	@echo "  stop          停止服务"
+	@echo "  restart       重启服务"
+	@echo "  rebuild       重新构建并启动"
+	@echo "  clean         清理（删除容器和镜像）"
+	@echo "  status        查看服务状态"
+	@echo "  logs          查看所有服务日志"
+	@echo ""
+	@echo "各服务管理:"
+	@echo "  caddy         启动 Caddy"
+	@echo "  redis         启动 Redis"
+	@echo "  mysql         启动 MySQL"
+	@echo "  mongo         启动 MongoDB"
+	@echo "  grpc          启动 gRPC"
+	@echo ""
+	@echo "各服务日志:"
+	@echo "  logs-caddy    查看 Caddy 日志"
+	@echo "  logs-redis    查看 Redis 日志"
+	@echo "  logs-mysql    查看 MySQL 日志"
+	@echo "  logs-mongo    查看 MongoDB 日志"
+	@echo "  logs-grpc     查看 gRPC 日志"
+	@echo ""
+	@echo "其他命令:"
+	@echo "  help          显示此帮助信息"
+
+# 基础管理命令
+.PHONY: build
+build:
+	docker-compose -f $(COMPOSE_FILE) build
+
+.PHONY: up
+up:
+	docker-compose -f $(COMPOSE_FILE) up -d
+
+.PHONY: down
+down:
+	docker-compose -f $(COMPOSE_FILE) down
+
+.PHONY: start
+start:
+	docker-compose -f $(COMPOSE_FILE) start
+
+.PHONY: stop
+stop:
+	docker-compose -f $(COMPOSE_FILE) stop
+
+.PHONY: restart
+restart:
+	docker-compose -f $(COMPOSE_FILE) restart
+
+.PHONY: rebuild
+rebuild:
+	docker-compose -f $(COMPOSE_FILE) up -d --build
+
+.PHONY: clean
+clean:
+	docker-compose -f $(COMPOSE_FILE) down -v --rmi all
+
+.PHONY: status
+status:
+	docker-compose -f $(COMPOSE_FILE) ps
+
+.PHONY: logs
+logs:
+	docker-compose -f $(COMPOSE_FILE) logs -f
+
+# 各服务管理
+.PHONY: caddy
+caddy:
+	docker-compose -f $(COMPOSE_FILE) up -d caddy
+
+.PHONY: redis
+redis:
+	docker-compose -f $(COMPOSE_FILE) up -d redis
+
+.PHONY: mysql
+mysql:
+	docker-compose -f $(COMPOSE_FILE) up -d mysql
+
+.PHONY: mongo
+mongo:
+	docker-compose -f $(COMPOSE_FILE) up -d mongo
+
+.PHONY: grpc
+grpc:
+	docker-compose -f $(COMPOSE_FILE) up -d grpc
+
+# 各服务日志
+.PHONY: logs-caddy
+logs-caddy:
+	docker-compose -f $(COMPOSE_FILE) logs -f caddy
+
+.PHONY: logs-redis
+logs-redis:
+	docker-compose -f $(COMPOSE_FILE) logs -f redis
+
+.PHONY: logs-mysql
+logs-mysql:
+	docker-compose -f $(COMPOSE_FILE) logs -f mysql
+
+.PHONY: logs-mongo
+logs-mongo:
+	docker-compose -f $(COMPOSE_FILE) logs -f mongo
+
+.PHONY: logs-grpc
+logs-grpc:
+	docker-compose -f $(COMPOSE_FILE) logs -f grpc
+
+# 默认目标
+.PHONY: all
+all: help
