@@ -183,7 +183,7 @@ make -f Makefile.single status
 - 支持 HTTP 到 HTTPS 自动重定向
 - 证书自动续期
 
-### 2. 集群功能（Caddy 2.11 增强）
+### 2. 集群功能（Caddy 2.10 增强）
 
 - **环境变量配置**：通过环境变量配置集群存储后端
 - **Redis 存储支持**：支持 Redis 作为集群配置存储
@@ -234,14 +234,14 @@ header {
 
 ### 1. 版本兼容性
 
-**重要**：本项目使用 Caddy 2.11，具有增强的集群支持：
+**重要**：本项目使用 Caddy 2.10，具有增强的集群支持：
 
-- ✅ 环境变量集群配置（通过环境变量配置存储后端）
-- ✅ Redis 存储后端支持
-- ✅ 集群配置同步和一致性
-- ✅ 改进的负载均衡算法
-- ✅ `tls internal`（开发环境自签名证书）
-- ✅ `rate_limit` 指令（已添加插件支持）
+- √ 环境变量集群配置（通过环境变量配置存储后端）
+- √ Redis 存储后端支持
+- √ 集群配置同步和一致性
+- √ 改进的负载均衡算法
+- √ `tls internal`（开发环境自签名证书）
+- √ `rate_limit` 指令（已添加插件支持）
 
 ### 2. 域名配置
 
@@ -263,7 +263,7 @@ www.example.com {
 
 ### 3. 集群配置
 
-Caddy 2.11 通过环境变量配置集群：
+Caddy 2.10 通过环境变量配置集群：
 
 ```bash
 # 环境变量配置
@@ -347,7 +347,7 @@ make caddy-logs
    ```bash
    # 检查配置文件语法
    docker exec caddy caddy validate --config /etc/caddy/Caddyfile
-   
+
    # 查看详细错误信息
    docker logs caddy
    ```
@@ -356,7 +356,7 @@ make caddy-logs
    ```bash
    # 检查证书状态
    docker exec caddy caddy list-certificates
-   
+
    # 强制更新证书
    docker exec caddy caddy reload --config /etc/caddy/Caddyfile
    ```
@@ -365,7 +365,7 @@ make caddy-logs
    ```bash
    # 检查后端服务状态
    docker ps | grep service
-   
+
    # 测试后端服务连接
    docker exec caddy curl -I http://home-service:3000/health
    ```
@@ -374,7 +374,7 @@ make caddy-logs
    ```bash
    # 重新加载配置
    docker exec caddy caddy reload --config /etc/caddy/Caddyfile
-   
+
    # 重启 Caddy 服务
    make caddy-restart
    ```
@@ -453,14 +453,14 @@ new-site {
         health_interval 30s
         health_timeout 5s
     }
-    
+
     header {
         X-Content-Type-Options "nosniff"
         X-Frame-Options "SAMEORIGIN"
     }
-    
+
     encode gzip
-    
+
     log {
         output file /data/logs/new-site.log
         format json
@@ -485,8 +485,8 @@ new-site {
 
 ## 版本信息
 
-- **Caddy 版本**: 2.11
-- **Docker 镜像**: caddy:2.11
+- **Caddy 版本**: 2.10
+- **Docker 镜像**: caddy:2.10
 - **配置文件**: Caddyfile
 - **日志格式**: JSON + Console
 
