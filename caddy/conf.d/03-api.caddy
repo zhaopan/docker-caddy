@@ -24,6 +24,11 @@ api {
         X-Frame-Options "DENY"
         X-XSS-Protection "1; mode=block"
         Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Cache control for API responses
+        Cache-Control "no-cache, no-store, must-revalidate" {
+            path /api/*
+        }
     }
     
     # Handle preflight requests
@@ -41,4 +46,13 @@ api {
         format json
         level INFO
     }
+    
+    # Rate limiting for API (disabled - requires plugin)
+    # rate_limit {
+    #     zone api {
+    #         key {remote_host}
+    #         events 1000
+    #         window 1m
+    #     }
+    # }
 }

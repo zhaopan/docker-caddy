@@ -30,6 +30,7 @@ help:
 	@echo "  caddy-restart 重启 Caddy 集群"
 	@echo "  caddy-status  检查 Caddy 集群状态"
 	@echo "  caddy-logs    查看 Caddy 集群日志"
+	@echo "  caddy-test    测试 Caddy 集群功能"
 	@echo ""
 	@echo "测试和开发:"
 	@echo "  test-go       运行 Go 语言测试"
@@ -109,6 +110,63 @@ caddy-restart:
 .PHONY: caddy-logs
 caddy-logs:
 	./cluster-manage.sh logs
+
+.PHONY: caddy-test
+caddy-test:
+	@echo "=== Caddy 集群功能测试 ==="
+	@echo ""
+	@echo "1. 检查集群状态..."
+	@make caddy-status
+	@echo ""
+	@echo "2. 测试主入口 (http://localhost:80)..."
+	@curl -s -o /dev/null -w "状态码: %{http_code}, 响应时间: %{time_total}s\n" http://localhost:80 || echo "主入口测试失败"
+	@echo ""
+	@echo "3. 测试 Worker1 (http://localhost:8001)..."
+	@curl -s -o /dev/null -w "状态码: %{http_code}, 响应时间: %{time_total}s\n" http://localhost:8001 || echo "Worker1 测试失败"
+	@echo ""
+	@echo "4. 测试 Worker2 (http://localhost:8002)..."
+	@curl -s -o /dev/null -w "状态码: %{http_code}, 响应时间: %{time_total}s\n" http://localhost:8002 || echo "Worker2 测试失败"
+	@echo ""
+	@echo "5. 测试 Worker3 (http://localhost:8003)..."
+	@curl -s -o /dev/null -w "状态码: %{http_code}, 响应时间: %{time_total}s\n" http://localhost:8003 || echo "Worker3 测试失败"
+	@echo ""
+	@echo "6. 测试 HTTPS 端口..."
+	@echo "HTTPS 端口监听检查:"
+	@if netstat -tlnp | grep -q :443; then \
+		echo "✅ 端口 443 正在监听"; \
+	else \
+		echo "❌ 端口 443 未监听"; \
+	fi
+	@echo ""
+	@echo "TLS 证书检查:"
+	@if docker exec caddy ls /data/caddy/certificates/local/ 2>/dev/null | grep -q ".crt"; then \
+		echo "✅ TLS 证书已生成"; \
+	else \
+		echo "❌ TLS 证书未生成"; \
+	fi
+	@echo ""
+	@echo "注意: HTTPS 测试需要正确的域名解析，当前使用 tls internal 模式"
+	@echo ""
+	@echo "7. 测试负载均衡..."
+	@echo "连续请求 5 次主入口，观察负载均衡效果:"
+	@for i in 1 2 3 4 5; do \
+		echo -n "请求 $$i: "; \
+		curl -s -o /dev/null -w "%{http_code} " http://localhost:80; \
+		sleep 0.5; \
+	done; \
+	echo ""
+	@echo ""
+	@echo "8. 检查容器健康状态..."
+	@docker ps --filter "name=caddy" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+	@echo ""
+	@echo "9. HTTPS 问题诊断..."
+	@echo "检查端口监听状态:"
+	@netstat -tlnp | grep :443 || echo "端口 443 未监听"
+	@echo ""
+	@echo "TLS 证书检查:"
+	@docker exec caddy ls -la /data/caddy/certificates/ 2>/dev/null || echo "证书目录不存在"
+	@echo ""
+	@echo "=== 测试完成 ==="
 
 # 测试管理
 .PHONY: test-go
