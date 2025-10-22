@@ -207,24 +207,115 @@ docker-compose down --rmi all
 
 ## 网络架构
 
+### 网络拓扑
+
 ```mermaid
-graph TD
-    subnet[172.18.0.0/16]
-    subnet --> core[172.18.0.1/24]
-    subnet ---> ext[172.18.1.0/16]
-
-    subgraph network
-        subnet
+graph TB
+    subgraph "Docker 网络: backend (172.18.0.0/16)"
+        subgraph "核心服务层 (172.18.0.0/24)"
+            PROXY[Caddy Proxy<br/>172.18.0.2:80/443]
+            MYSQL[MySQL<br/>172.18.0.3:3306]
+            REDIS[Redis Master<br/>172.18.0.4:6379]
+            MONGO[MongoDB<br/>172.18.0.5:27017]
+        end
+        
+        subgraph "Redis 哨兵层 (172.18.0.6-11)"
+            SLAVE1[Redis Slave1<br/>172.18.0.6:6380]
+            SLAVE2[Redis Slave2<br/>172.18.0.7:6381]
+            SENT1[Sentinel1<br/>172.18.0.8:26379]
+            SENT2[Sentinel2<br/>172.18.0.9:26380]
+            SENT3[Sentinel3<br/>172.18.0.10:26381]
+        end
+        
+        subgraph "Caddy Worker 层 (172.18.0.12-15)"
+            WORKER1[Worker1<br/>172.18.0.12:8001]
+            WORKER2[Worker2<br/>172.18.0.13:8002]
+            WORKER3[Worker3<br/>172.18.0.14:8003]
+            GRPC[gRPC Service<br/>172.18.0.15:8000]
+        end
+        
+        subgraph "扩展服务层 (172.18.1.0/24)"
+            EXT1[扩展服务1<br/>172.18.1.1]
+            EXT2[扩展服务2<br/>172.18.1.2]
+            EXT3[扩展服务3<br/>172.18.1.3]
+        end
     end
-
-    subgraph 核心服务/保留IP
-        core
+    
+    subgraph "外部访问"
+        USER[用户]
+        ADMIN[管理员]
     end
-
-    subgraph 扩展服务
-        ext
-    end
+    
+    USER --> PROXY
+    ADMIN --> PROXY
+    PROXY --> WORKER1
+    PROXY --> WORKER2
+    PROXY --> WORKER3
+    
+    REDIS --> SLAVE1
+    REDIS --> SLAVE2
+    SENT1 --> REDIS
+    SENT2 --> REDIS
+    SENT3 --> REDIS
 ```
+
+### IP 地址分配
+
+| 服务类型 | IP 范围 | 用途 | 示例 |
+|---------|---------|------|------|
+| **核心服务** | 172.18.0.2-5 | 基础服务 | Caddy、MySQL、Redis、MongoDB |
+| **Redis 集群** | 172.18.0.6-11 | 哨兵模式 | 主从节点 + 哨兵节点 |
+| **Caddy 集群** | 172.18.0.12-15 | 负载均衡 | Worker 节点 + gRPC |
+| **扩展服务** | 172.18.1.0/24 | 自定义服务 | 用户定义的服务 |
+
+### 端口映射
+
+#### 外部访问端口
+| 服务 | 内部端口 | 外部端口 | 协议 | 说明 |
+|------|----------|----------|------|------|
+| Caddy | 80 | 80 | HTTP | 主入口 |
+| Caddy | 443 | 443 | HTTPS | SSL 入口 |
+| Caddy Worker1 | 8001 | 8001 | HTTP | 负载均衡测试 |
+| Caddy Worker2 | 8002 | 8002 | HTTP | 负载均衡测试 |
+| Caddy Worker3 | 8003 | 8003 | HTTP | 负载均衡测试 |
+| Redis | 6379 | 6379 | TCP | 主节点 |
+| MySQL | 3306 | 3306 | TCP | 数据库 |
+| MongoDB | 27017 | 27017 | TCP | 文档数据库 |
+| gRPC | 8000 | 8000 | HTTP | 微服务 |
+
+#### 内部通信端口
+| 服务 | 端口 | 协议 | 说明 |
+|------|------|------|------|
+| Redis Slave1 | 6380 | TCP | 从节点1 |
+| Redis Slave2 | 6381 | TCP | 从节点2 |
+| Redis Sentinel1 | 26379 | TCP | 哨兵1 |
+| Redis Sentinel2 | 26380 | TCP | 哨兵2 |
+| Redis Sentinel3 | 26381 | TCP | 哨兵3 |
+
+### 网络配置
+
+#### Docker 网络创建
+```bash
+# 创建自定义网络
+docker network create \
+  --driver bridge \
+  --subnet=172.18.0.0/16 \
+  --ip-range=172.18.0.0/24 \
+  --gateway=172.18.0.1 \
+  backend
+```
+
+#### 服务间通信
+- **内部通信**：所有服务通过容器名进行通信
+- **外部访问**：通过宿主机端口映射访问
+- **负载均衡**：Caddy 自动分发请求到 Worker 节点
+- **故障转移**：Redis 哨兵自动处理主从切换
+
+#### 安全考虑
+- **网络隔离**：所有服务运行在独立的 Docker 网络中
+- **端口控制**：只暴露必要的端口到宿主机
+- **内部通信**：服务间通信不经过宿主机网络
+- **访问控制**：通过 Caddy 进行统一的访问控制
 
 ## 站点配置
 
