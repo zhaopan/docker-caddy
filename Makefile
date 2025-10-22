@@ -18,11 +18,11 @@ help:
 	@echo "  status        查看服务状态"
 	@echo ""
 	@echo "Redis 集群管理:"
-	@echo "  redis-start   启动 Redis 哨兵集群"
-	@echo "  redis-stop    停止 Redis 哨兵集群"
-	@echo "  redis-restart 重启 Redis 哨兵集群"
-	@echo "  redis-status  检查 Redis 集群状态"
-	@echo "  redis-logs    查看 Redis 集群日志"
+	@echo "  redis-start         启动 Redis 哨兵集群"
+	@echo "  redis-stop          停止 Redis 哨兵集群"
+	@echo "  redis-restart       重启 Redis 哨兵集群"
+	@echo "  redis-status        检查 Redis 集群状态"
+	@echo "  redis-logs          查看 Redis 集群日志"
 	@echo ""
 	@echo "Caddy 集群管理:"
 	@echo "  caddy-start   启动 Caddy 集群"
@@ -41,12 +41,12 @@ help:
 	@echo ""
 	@echo "单机模式:"
 	@echo "  使用 'make -f Makefile.single help' 查看单机模式命令"
-	@echo ""	
+	@echo ""
 	@echo "其他命令:"
 	@echo "  clean         清理 Docker 镜像"
 	@echo "  stop-all      停止所有服务"
 	@echo "  full-test     完整测试流程"
-	@echo ""	
+	@echo ""
 
 # Docker 操作
 .PHONY: build
@@ -84,7 +84,6 @@ redis-status:
 .PHONY: redis-restart
 redis-restart:
 	./redis-sentinel-manage.sh restart
-
 
 .PHONY: redis-logs
 redis-logs:
