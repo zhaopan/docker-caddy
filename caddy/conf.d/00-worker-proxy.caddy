@@ -1,0 +1,99 @@
+# Worker 反向代理配置
+# 用于将请求分发到不同的 Worker 节点
+
+# Worker 负载均衡配置
+worker-proxy.local {
+    # TLS configuration (development)
+    tls internal
+    
+    # 负载均衡到多个 Worker 节点
+    reverse_proxy {
+        # Worker1
+        to caddy-worker1:80
+        # Worker2  
+        to caddy-worker2:80
+        # Worker3
+        to caddy-worker3:80
+        
+        # 负载均衡策略
+        lb_policy round_robin
+        
+        # 健康检查
+        health_uri /health
+        health_interval 30s
+        health_timeout 5s
+        
+        # 故障转移
+        fail_duration 30s
+        max_fails 3
+    }
+    
+    # Security headers
+    header {
+        # Security headers
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # 负载均衡标识
+        X-Load-Balancer "caddy-cluster"
+        X-Backend-Servers "worker1,worker2,worker3"
+    }
+    
+    # Gzip compression
+    encode gzip
+    
+    # Logging
+    log {
+        output file /data/logs/worker-proxy.log
+        format json
+        level INFO
+    }
+}
+
+# Worker 健康检查端点
+worker-health.local {
+    # TLS configuration (development)
+    tls internal
+    
+    # 健康检查响应
+    respond "Worker cluster is healthy" 200
+    
+    # 健康检查 headers
+    header {
+        X-Health-Check "true"
+        X-Cluster-Status "healthy"
+        X-Worker-Count "3"
+    }
+    
+    # Logging
+    log {
+        output file /data/logs/worker-health.log
+        format json
+        level INFO
+    }
+}
+
+# Worker 状态监控端点
+worker-status.local {
+    # TLS configuration (development)
+    tls internal
+    
+    # 状态信息响应
+    respond "Worker cluster status: active" 200
+    
+    # 状态监控 headers
+    header {
+        Content-Type "application/json"
+        X-Status-Endpoint "true"
+        X-Cluster-Monitor "enabled"
+    }
+    
+    # Logging
+    log {
+        output file /data/logs/worker-status.log
+        format json
+        level INFO
+    }
+}

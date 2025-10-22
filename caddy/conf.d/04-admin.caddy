@@ -18,6 +18,23 @@ admin {
         X-Frame-Options "SAMEORIGIN"
         X-XSS-Protection "1; mode=block"
         Referrer-Policy "strict-origin-when-cross-origin"
+        
+        # Cache control for admin static assets
+        Cache-Control "public, max-age=3600" {
+            path *.css
+            path *.js
+            path *.png
+            path *.jpg
+            path *.jpeg
+            path *.gif
+            path *.svg
+            path *.ico
+        }
+        
+        # No cache for admin pages
+        Cache-Control "no-cache, no-store, must-revalidate" {
+            path /admin/*
+        }
     }
     
     # Gzip compression
@@ -29,4 +46,13 @@ admin {
         format json
         level INFO
     }
+    
+    # Rate limiting for admin (disabled - requires plugin)
+    # rate_limit {
+    #     zone admin {
+    #         key {remote_host}
+    #         events 500
+    #         window 1m
+    #     }
+    # }
 }
