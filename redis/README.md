@@ -17,11 +17,42 @@
 
 ### 网络配置
 
-- **主节点 IP**: 172.18.0.4
-- **从节点 IP**: 172.18.1.1, 172.18.1.2
-- **哨兵节点**: 自动发现和通信
+#### Redis主节点（静态IP）
+- **主节点**: redis-master (172.18.0.4:6379) - 静态IP，其他Redis服务需要连接
+
+#### Worker节点（动态IP）
+- **从节点**: redis-slave1, redis-slave2 - 动态IP，可随时添加/删除
+- **哨兵节点**: redis-sentinel1, redis-sentinel2, redis-sentinel3 - 动态IP，可随时添加/删除
+
+> **架构说明**: Redis主节点使用静态IP确保稳定性，worker节点使用动态IP支持弹性扩展。
 
 ## 配置文件说明
+
+### 环境变量配置
+
+在 `.env` 文件中配置Redis哨兵相关参数：
+
+```bash
+# Redis Configuration
+REDIS_PASSWORD=CG1rMeyRryFgvElf8n
+REDIS_IP=172.18.0.4
+
+# Redis Sentinel Configuration
+REDIS_SENTINEL_QUORUM=2
+REDIS_SENTINEL_DOWN_AFTER_MS=5000
+REDIS_SENTINEL_FAILOVER_TIMEOUT=10000
+```
+
+### 配置方式
+
+使用智能动态配置，Redis主节点使用静态IP，worker节点使用动态IP：
+
+```bash
+# 启动 Redis 哨兵集群
+make redis-start
+# 或
+./redis-sentinel-manage.sh start
+```
 
 ### sentinel.conf
 

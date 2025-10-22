@@ -54,7 +54,7 @@ services:
       - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=CG1rMeyRryFgvElf8n
       - CADDY_CLUSTER_STORAGE_REDIS_DB=1
     networks:
-      backend: { }
+      - backend
 
   proxy-worker2:
     build:
@@ -78,7 +78,7 @@ services:
       - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=CG1rMeyRryFgvElf8n
       - CADDY_CLUSTER_STORAGE_REDIS_DB=1
     networks:
-      backend: { }
+      - backend
 
   proxy-worker3:
     build:
@@ -102,7 +102,7 @@ services:
       - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=CG1rMeyRryFgvElf8n
       - CADDY_CLUSTER_STORAGE_REDIS_DB=1
     networks:
-      backend: { }
+      - backend
 
   ######## redis master ########
   redis-master:
@@ -118,7 +118,7 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
-      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_DATA_PATH}/master:/data
       - ${REDIS_CONF_PATH}:/etc/redis/redis.conf:ro
     command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     networks:
@@ -138,13 +138,13 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
-      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_DATA_PATH}/slave1:/data
       - ./redis/redis-slave.conf:/etc/redis/redis.conf
     command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     depends_on:
       - redis-master
     networks:
-      backend: { }
+      - backend
 
   redis-slave2:
     build:
@@ -159,13 +159,13 @@ services:
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
-      - ${REDIS_DATA_PATH}:/data
+      - ${REDIS_DATA_PATH}/slave2:/data
       - ./redis/redis-slave.conf:/etc/redis/redis.conf
     command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     depends_on:
       - redis-master
     networks:
-      backend: { }
+      - backend
 
   ######## redis sentinel ########
   redis-sentinel1:
@@ -180,12 +180,11 @@ services:
       - "26379:26379"
     volumes:
       - ./redis/sentinel.conf:/etc/redis/sentinel.conf
-      - ${REDIS_DATA_PATH}:/data
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     depends_on:
       - redis-master
     networks:
-      backend: { }
+      - backend
 
   redis-sentinel2:
     build:
@@ -199,12 +198,11 @@ services:
       - "26380:26379"
     volumes:
       - ./redis/sentinel.conf:/etc/redis/sentinel.conf
-      - ${REDIS_DATA_PATH}:/data
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     depends_on:
       - redis-master
     networks:
-      backend: { }
+      - backend
 
   redis-sentinel3:
     build:
@@ -218,12 +216,11 @@ services:
       - "26381:26379"
     volumes:
       - ./redis/sentinel.conf:/etc/redis/sentinel.conf
-      - ${REDIS_DATA_PATH}:/data
     command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
     depends_on:
       - redis-master
     networks:
-      backend: { }
+      - backend
 
   ######## mysql ########
   mysql:
@@ -281,7 +278,7 @@ services:
     volumes:
       - grpc_data:/app
     networks:
-      backend: { }
+      - backend
 
   grpc-worker1:
     build:
@@ -292,7 +289,7 @@ services:
     volumes:
       - grpc_data:/app
     networks:
-      backend: { }
+      - backend
 
   grpc-worker2:
     build:
@@ -303,7 +300,7 @@ services:
     volumes:
       - grpc_data:/app
     networks:
-      backend: { }
+      - backend
 
   grpc-worker3:
     build:
@@ -314,7 +311,7 @@ services:
     volumes:
       - grpc_data:/app
     networks:
-      backend: { }
+      - backend
 
 networks:
   backend:
