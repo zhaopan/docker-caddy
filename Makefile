@@ -133,16 +133,16 @@ caddy-test:
 	@echo "6. 测试 HTTPS 端口..."
 	@echo "HTTPS 端口监听检查:"
 	@if netstat -tlnp | grep -q :443; then \
-		echo "✅ 端口 443 正在监听"; \
+		echo "√ 端口 443 正在监听"; \
 	else \
-		echo "❌ 端口 443 未监听"; \
+		echo "x 端口 443 未监听"; \
 	fi
 	@echo ""
 	@echo "TLS 证书检查:"
 	@if docker exec caddy ls /data/caddy/certificates/local/ 2>/dev/null | grep -q ".crt"; then \
-		echo "✅ TLS 证书已生成"; \
+		echo "√ TLS 证书已生成"; \
 	else \
-		echo "❌ TLS 证书未生成"; \
+		echo "x TLS 证书未生成"; \
 	fi
 	@echo ""
 	@echo "注意: HTTPS 测试需要正确的域名解析，当前使用 tls internal 模式"
@@ -213,7 +213,6 @@ status:
 .PHONY: full-test
 full-test:
 	cd test && make full-test
-
 
 # 默认目标
 .PHONY: all
