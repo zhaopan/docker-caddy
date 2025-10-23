@@ -34,7 +34,7 @@ WORKDIR /root/
 COPY --from=builder /app/app .
 
 # 暴露容器的端口
-EXPOSE 8000
+EXPOSE 80
 
 # 启动应用
 CMD ["./app"]

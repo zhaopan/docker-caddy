@@ -9,7 +9,7 @@ import (
 )
 
 // PORT 编译时变量，可以通过 -ldflags "-X main.PORT=8001" 设置
-var PORT = "8000"
+var PORT = "80"
 
 type Request struct {
     Input string `json:"input"`
