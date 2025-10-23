@@ -313,21 +313,6 @@ services:
     networks:
       - backend
 
-  ######## go web app ########
-  go-web:
-    build:
-      context: ./test/go
-    image: ${AUTHOR}/go-web:latest
-    container_name: go-web
-    restart: always
-    ports:
-      - "8080:8080"
-    networks:
-      - backend
-    depends_on:
-      - redis-master
-      - redis-sentinel1
-
 networks:
   backend:
     name: backend
