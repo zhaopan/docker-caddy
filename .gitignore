@@ -7,6 +7,12 @@
 *.dll
 *.so
 *.dylib
+test/go/web-app
+test/go/test-redis
+grpc/grpc-service
+grpc/grpc-worker1
+grpc/grpc-worker2
+grpc/grpc-worker3
 
 # Test binary, built with `go test -c`
 *.test

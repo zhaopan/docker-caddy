@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -159,7 +160,7 @@ func (app *WebApp) setUser(c *gin.Context) {
 	userKey := "user:" + strconv.Itoa(user.ID)
 
 	// 使用哈希存储用户信息
-	err := app.redis.HSet(ctx, userKey, "id", user.ID, "name", user.Name, "age", user.Age)
+	_, err := app.redis.HSet(ctx, userKey, "id", user.ID, "name", user.Name, "age", user.Age)
 	if err != nil {
 		errorResponse(c, http.StatusInternalServerError, "设置用户失败: "+err.Error())
 		return
@@ -220,7 +221,7 @@ func (app *WebApp) addListItem(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	
+
 	// 转换为 interface{} 切片
 	items := make([]interface{}, len(req.Items))
 	for i, item := range req.Items {
@@ -296,7 +297,7 @@ func (app *WebApp) addSetMember(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	
+
 	// 转换为 interface{} 切片
 	members := make([]interface{}, len(req.Members))
 	for i, member := range req.Members {
@@ -373,7 +374,7 @@ func (app *WebApp) getRedisStatus(c *gin.Context) {
 // 健康检查
 func (app *WebApp) healthCheck(c *gin.Context) {
 	ctx := context.Background()
-	
+
 	// 测试主节点连接
 	_, err := app.redis.MasterClient.Ping(ctx).Result()
 	if err != nil {
@@ -407,12 +408,12 @@ func (app *WebApp) setupRoutes() *gin.Engine {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		
+
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
 		}
-		
+
 		c.Next()
 	})
 
@@ -449,7 +450,7 @@ func (app *WebApp) setupRoutes() *gin.Engine {
 // 启动 Web 应用
 func (app *WebApp) Run(port string) {
 	r := app.setupRoutes()
-	
+
 	log.Printf("Web 应用启动在端口 %s", port)
 	log.Printf("API 文档:")
 	log.Printf("  POST   /api/v1/kv              - 设置键值对")
@@ -465,7 +466,7 @@ func (app *WebApp) Run(port string) {
 	log.Printf("  GET    /api/v1/sets/:set_key   - 获取集合成员")
 	log.Printf("  GET    /api/v1/redis/status    - 获取 Redis 状态")
 	log.Printf("  GET    /api/v1/health          - 健康检查")
-	
+
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("启动 Web 应用失败:", err)
 	}
@@ -474,7 +475,7 @@ func (app *WebApp) Run(port string) {
 func main() {
 	// 创建 Web 应用
 	app := NewWebApp()
-	
+
 	// 启动应用
 	app.Run("8080")
 }
