@@ -273,8 +273,8 @@ services:
     image: ${AUTHOR}/${GRPC_NAME}:${GRPC_VERSION}
     container_name: ${GRPC_NAME}
     restart: always
-    ports:
-      - ${GRPC_PORT}:8000
+    # ports:
+    #   - ${GRPC_PORT}:8000
     volumes:
       - grpc_data:/app
     networks:
