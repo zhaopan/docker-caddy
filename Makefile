@@ -62,7 +62,6 @@ up:
 down:
 	docker-compose down
 
-
 .PHONY: clean
 clean:
 	rm -rf $(PROJECT_NAME)
