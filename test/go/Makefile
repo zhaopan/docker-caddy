@@ -4,7 +4,7 @@
 BINARY_NAME=redis-sentinel-test
 WEB_BINARY_NAME=web-app
 TEST_BINARY_NAME=test-redis
-GO_VERSION=1.21
+GO_VERSION=1.24
 
 # 默认目标
 .PHONY: all
@@ -20,8 +20,6 @@ deps:
 # 构建所有程序
 .PHONY: build
 build: deps
-	@echo "构建 Redis 配置程序..."
-	go build -o $(BINARY_NAME) redis-config.go
 	@echo "构建 Web 应用..."
 	go build -o $(WEB_BINARY_NAME) web-app.go redis-config.go
 	@echo "构建测试程序..."
