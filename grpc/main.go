@@ -48,7 +48,6 @@ func main() {
     }
 
     fmt.Printf("gRPC 服务启动在端口 %s\n", port)
-    fmt.Printf("API 端点: http://localhost:%s/process\n", port)
 
     http.HandleFunc("/process", handler)
     http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
