@@ -4,6 +4,7 @@
 # 项目信息
 PROJECT_NAME = docker-caddy
 VERSION = $(shell git describe --always --tags 2>/dev/null || echo "dev")
+DOCKER_COMPOSE ?= docker-compose
 
 # 帮助信息
 .PHONY: help
@@ -32,6 +33,14 @@ help:
 	@echo "  caddy-logs    查看 Caddy 集群日志"
 	@echo "  caddy-test    测试 Caddy 集群功能"
 	@echo ""
+	@echo "gRPC 集群管理:"
+	@echo "  grpc-start    启动 gRPC 集群"
+	@echo "  grpc-stop     停止 gRPC 集群"
+	@echo "  grpc-restart  重启 gRPC 集群"
+	@echo "  grpc-status   查看 gRPC 集群状态"
+	@echo "  grpc-logs     查看 gRPC 集群日志"
+	@echo "  grpc-rebuild  重新构建并启动 gRPC 集群"
+	@echo ""
 	@echo "测试和开发:"
 	@echo "  test-go       运行 Go 语言测试"
 	@echo "  test-py       运行 Python 语言测试"
@@ -44,29 +53,30 @@ help:
 	@echo "  使用 'make -f Makefile.single help' 查看单机模式命令"
 	@echo ""
 	@echo "其他命令:"
-	@echo "  clean         清理 Docker 镜像"
-	@echo "  stop-all      停止所有服务"
+	@echo "  clean         清理 Docker 资源"
+	@echo "  stop-all      停止所有服务（包含 Docker 与本地进程）"
 	@echo "  full-test     完整测试流程"
 	@echo ""
 
 # Docker 操作
 .PHONY: build
 build:
-	docker-compose build
+	$(DOCKER_COMPOSE) build
 
 .PHONY: up
 up:
-	docker-compose up -d
+	$(DOCKER_COMPOSE) up -d
 
 .PHONY: down
 down:
-	docker-compose down
+	$(DOCKER_COMPOSE) down
 
 .PHONY: clean
 clean:
-	rm -rf $(PROJECT_NAME)
-	docker rmi -f $(shell docker images -f "dangling=true" -q) 2> /dev/null; true
-	docker rmi -f $(PROJECT_NAME):latest $(PROJECT_NAME):$(VERSION) 2> /dev/null; true
+	@echo "清理 Docker 资源..."
+	-$(DOCKER_COMPOSE) down --rmi local --volumes --remove-orphans
+	-docker rmi -f $(shell docker images -f "dangling=true" -q) 2> /dev/null
+	-docker rmi -f $(PROJECT_NAME):latest $(PROJECT_NAME):$(VERSION) 2> /dev/null
 
 # Redis 哨兵集群管理
 .PHONY: redis-start
@@ -115,7 +125,7 @@ caddy-test:
 	@echo "=== Caddy 集群功能测试 ==="
 	@echo ""
 	@echo "1. 检查集群状态..."
-	@make caddy-status
+	@$(MAKE) caddy-status
 	@echo ""
 	@echo "2. 测试主入口 (http://localhost:80)..."
 	@curl -s -o /dev/null -w "状态码: %{http_code}, 响应时间: %{time_total}s\n" http://localhost:80 || echo "主入口测试失败"
@@ -167,51 +177,76 @@ caddy-test:
 	@echo ""
 	@echo "=== 测试完成 ==="
 
+# gRPC 集群管理
+.PHONY: grpc-start
+grpc-start:
+	./grpc-manage.sh start
+
+.PHONY: grpc-stop
+grpc-stop:
+	./grpc-manage.sh stop
+
+.PHONY: grpc-status
+grpc-status:
+	./grpc-manage.sh status
+
+.PHONY: grpc-restart
+grpc-restart:
+	./grpc-manage.sh restart
+
+.PHONY: grpc-logs
+grpc-logs:
+	./grpc-manage.sh logs
+
+.PHONY: grpc-rebuild
+grpc-rebuild:
+	./grpc-manage.sh rebuild
+
 # 测试管理
 .PHONY: test-go
 test-go:
-	cd test/go && make test
+	$(MAKE) -C test/go test
 
 .PHONY: test-py
 test-py:
-	cd test/py && make test
+	$(MAKE) -C test/py test
 
 .PHONY: test-all
 test-all:
-	cd test && make test-all
+	$(MAKE) -C test test-all
 
 # Web 应用管理
 .PHONY: web-go
 web-go:
-	cd test/go && make web
+	$(MAKE) -C test/go web
 
 .PHONY: web-py
 web-py:
-	cd test/py && make web
+	$(MAKE) -C test/py web
 
 .PHONY: web-all
 web-all:
-	cd test && make web-all
+	$(MAKE) -C test web-all
 
 # 开发环境
 .PHONY: dev
 dev:
-	cd test && make dev
+	$(MAKE) -C test dev
 
 # 停止所有服务
 .PHONY: stop-all
-stop-all:
-	cd test && make stop-all
+stop-all: down
+	$(MAKE) -C test stop-all
 
 # 查看状态
 .PHONY: status
 status:
-	cd test && make status-all
+	$(MAKE) -C test status-all
 
 # 完整测试流程
 .PHONY: full-test
 full-test:
-	cd test && make full-test
+	$(MAKE) -C test full-test
 
 # 默认目标
 .PHONY: all
