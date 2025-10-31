@@ -1,0 +1,58 @@
+# Admin Site Configuration
+grpc {
+    # TLS configuration (development)
+    tls internal
+
+    # Reverse proxy to grpc service
+    reverse_proxy grpc:80 {
+        # Health check
+        health_uri /health
+        health_interval 30s
+        health_timeout 5s
+    }
+
+    # Security headers
+    header {
+        # Security headers
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+
+        # Cache control for grpc static assets
+        Cache-Control "public, max-age=3600" {
+            path *.css
+            path *.js
+            path *.png
+            path *.jpg
+            path *.jpeg
+            path *.gif
+            path *.svg
+            path *.ico
+        }
+
+        # No cache for grpc pages
+        Cache-Control "no-cache, no-store, must-revalidate" {
+            path /grpc/*
+        }
+    }
+
+    # Gzip compression
+    encode gzip
+
+    # Logging
+    log {
+        output file /data/logs/grpc.log
+        format json
+        level INFO
+    }
+
+    # Rate limiting for grpc (disabled - requires plugin)
+    # rate_limit {
+    #     zone grpc {
+    #         key {remote_host}
+    #         events 500
+    #         window 1m
+    #     }
+    # }
+}
