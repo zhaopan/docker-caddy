@@ -18,9 +18,11 @@
 ### 网络配置
 
 #### Redis主节点（静态IP）
+
 - **主节点**: redis-master (172.18.0.4:6379) - 静态IP，其他Redis服务需要连接
 
 #### Worker节点（动态IP）
+
 - **从节点**: redis-slave1, redis-slave2 - 动态IP，可随时添加/删除
 - **哨兵节点**: redis-sentinel1, redis-sentinel2, redis-sentinel3 - 动态IP，可随时添加/删除
 
