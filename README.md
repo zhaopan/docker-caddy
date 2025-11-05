@@ -4,16 +4,16 @@
 
 ## 目录
 
-- [项目特性](#-项目特性)
-- [快速开始](#-快速开始)
-- [服务架构](#-服务架构)
-- [环境配置](#-环境配置)
-- [部署模式](#-部署模式)
-- [管理命令](#-管理命令)
-- [网络架构](#-网络架构)
-- [项目结构](#-项目结构)
-- [开发指南](#-开发指南)
-- [故障排除](#-故障排除)
+- [项目特性](#项目特性)
+- [快速开始](#快速开始)
+- [服务架构](#服务架构)
+- [环境配置](#环境配置)
+- [部署模式](#部署模式)
+- [管理命令](#管理命令)
+- [网络架构](#网络架构)
+- [项目结构](#项目结构)
+- [开发指南](#开发指南)
+- [故障排除](#故障排除)
 - [致谢](#致谢)
 
 ## 项目特性
@@ -47,6 +47,7 @@ vim .env
 ### 2. 选择部署模式
 
 #### Redis 哨兵模式（生产推荐）
+
 ```bash
 # 启动 Redis 哨兵集群
 make redis-start
@@ -59,6 +60,7 @@ make redis-test
 ```
 
 #### Redis 单机模式（开发推荐）
+
 ```bash
 # 启动单机 Redis
 docker-compose up -d redis-master
@@ -67,7 +69,8 @@ docker-compose up -d redis-master
 docker-compose exec -T redis-master redis-cli --no-auth-warning -a CG1rMeyRryFgvElf8n ping
 ```
 
-#### Caddy 集群模式
+#### Caddy 集群模式（生产推荐）
+
 ```bash
 # 启动 Caddy 集群
 make caddy-start
@@ -118,12 +121,14 @@ make caddy-stop
 > **详细文档**: 查看 [Caddy 配置文档](caddy/README.md) 了解完整的配置说明、使用方法和故障排除指南。
 
 **集群架构**:
+
 - 主入口: proxy (端口 80/443) - 负载均衡器
 - Worker1: proxy-worker1 (端口 8001/1443)
 - Worker2: proxy-worker2 (端口 8002/2443)
 - Worker3: proxy-worker3 (端口 8003/3443)
 
 **特性**:
+
 - 轮询负载均衡算法
 - 健康检查机制
 - 自动故障转移
@@ -151,11 +156,13 @@ make redis-stop
 ```
 
 **哨兵架构**:
+
 - 主节点: redis-master (端口 6379) - 处理写操作，使用静态IP
 - 从节点: redis-slave1 (端口 6380), redis-slave2 (端口 6381) - 复制主节点数据，动态IP
 - 哨兵节点: redis-sentinel1 (端口 26379), redis-sentinel2 (端口 26380), redis-sentinel3 (端口 26381) - 监控和故障转移，动态IP
 
 **特性**:
+
 - 智能动态配置：主节点静态IP，worker节点动态IP
 - 环境变量管理：所有配置通过.env文件管理
 - 自动故障检测和转移
@@ -177,6 +184,7 @@ docker-compose stop redis-master
 ```
 
 **单机特性**:
+
 - 轻量级部署
 - 快速启动
 - 适合开发和测试
@@ -411,6 +419,7 @@ graph TB
 | Redis Sentinel3 | 26379 | 26381 | TCP | 哨兵3 |
 
 ### 服务间通信
+
 - **内部通信**：所有服务通过容器名进行通信
 - **外部访问**：通过宿主机端口映射访问
 - **网络管理**：使用 `init.sh` 脚本自动创建和管理网络
@@ -418,13 +427,14 @@ graph TB
 - **故障转移**：Redis 哨兵自动处理主从切换
 
 #### 安全考虑
+
 - **网络隔离**：所有服务运行在独立的 Docker 网络中
 - **端口控制**：只暴露必要的端口到宿主机
 - **访问控制**：通过 Caddy 进行统一的访问控制
 
 ## 项目结构
 
-```
+```txt
 docker-caddy/
 ├── caddy/                   # Caddy 配置
 │   ├── README.md            # Caddy 配置详细说明
@@ -483,17 +493,20 @@ docker-caddy/
 ### 添加新站点
 
 1. **复制模板文件**：
+
    ```bash
    cp caddy/conf.d/00-example-caddy caddy/conf.d/05-your-site.caddy
    ```
 
 2. **修改配置**：
+
    - 替换域名：`your-domain.com` → `your-site.com`
    - 修改后端服务：`your-service:port` → `your-service:8080`
    - 调整日志文件：`your-site.log` → `your-site.log`
    - 根据需要调整其他配置
 
 3. **重启 Caddy**：
+
    ```bash
    make caddy-restart
    ```

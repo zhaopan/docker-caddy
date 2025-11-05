@@ -22,9 +22,9 @@
 
 | 站点 | 域名 | 后端服务 | 端口 | 说明 |
 |------|------|----------|------|------|
-| www | www.example.com | home-service | 3000 | 主站点 |
-| api | api.example.com | api-service | 3001 | API 接口 |
-| admin | admin.example.com | admin-service | 3002 | 管理后台 |
+| www | `www.example.com` | home-service | 3000 | 主站点 |
+| api | `api.example.com` | api-service | 3001 | API 接口 |
+| admin | `admin.example.com` | admin-service | 3002 | 管理后台 |
 
 ## 配置文件说明
 
@@ -297,7 +297,7 @@ curl http://localhost:3002/health
 
 ### 日志文件位置
 
-```
+```txt
 /data/logs/
 ├── caddy.log      # Caddy 主日志
 ├── home.log       # 主站点访问日志
@@ -308,11 +308,13 @@ curl http://localhost:3002/health
 ### 日志格式
 
 **Caddy 主日志**（控制台格式）：
-```
+
+```txt
 2024/01/01 12:00:00 [INFO] serving initial configuration
 ```
 
 **站点访问日志**（JSON 格式）：
+
 ```json
 {
   "level": "info",
@@ -349,6 +351,7 @@ make caddy-logs
 ### 常见问题
 
 1. **Caddy 启动失败**
+
    ```bash
    # 检查配置文件语法
    docker exec caddy caddy validate --config /etc/caddy/Caddyfile
@@ -358,6 +361,7 @@ make caddy-logs
    ```
 
 2. **HTTPS 证书问题**
+
    ```bash
    # 检查证书状态
    docker exec caddy caddy list-certificates
@@ -367,6 +371,7 @@ make caddy-logs
    ```
 
 3. **后端服务连接失败**
+
    ```bash
    # 检查后端服务状态
    docker ps | grep service
@@ -376,6 +381,7 @@ make caddy-logs
    ```
 
 4. **配置不生效**
+
    ```bash
    # 重新加载配置
    docker exec caddy caddy reload --config /etc/caddy/Caddyfile
