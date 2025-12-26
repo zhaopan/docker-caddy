@@ -1,57 +1,19 @@
 # Redis Sentinel Configuration Template
-# This file will be processed by the management script to generate the actual sentinel.conf
-
-# 哨兵端口
 port 26379
-
-# 守护进程模式
 daemonize no
-
-# PID文件
 pidfile "/var/run/redis-sentinel.pid"
-
-# 日志文件
 logfile ""
-
-# 工作目录
 dir "/data"
-
-# 保护模式
 protected-mode no
-
-# 绑定地址
 bind 0.0.0.0
-
-# 日志级别
 loglevel notice
 
-# 通知
-notify-keyspace-events ""
+# 核心监控配置 - 由 Makefile 动态注入 IP
+sentinel monitor redis-master REDIS_MASTER_IP 6379 2
+sentinel down-after-milliseconds redis-master 5000
+sentinel failover-timeout redis-master 10000
+sentinel auth-pass redis-master REDIS_PASSWORD
 
-# 客户端输出缓冲区限制
 client-output-buffer-limit normal 0 0 0
 client-output-buffer-limit replica 256mb 64mb 60
 client-output-buffer-limit pubsub 32mb 8mb 60
-
-# 监控的主节点配置 - 使用服务名（Docker会自动解析为静态IP）
-sentinel monitor redis-master redis-master 6379 ${REDIS_SENTINEL_QUORUM}
-
-# 主节点无响应多长时间后认为主节点下线 (毫秒)
-sentinel down-after-milliseconds redis-master ${REDIS_SENTINEL_DOWN_AFTER_MS}
-
-# 故障转移超时时间
-sentinel failover-timeout redis-master ${REDIS_SENTINEL_FAILOVER_TIMEOUT}
-
-# 禁止脚本重配置
-sentinel deny-scripts-reconfig yes
-
-# 主节点认证密码
-sentinel auth-pass redis-master ${REDIS_PASSWORD}
-
-# 注意：以下配置项会在运行时自动生成和管理
-# - sentinel myid: 哨兵实例的唯一标识符
-# - sentinel known-replica: 已知的从节点列表（动态发现）
-# - sentinel known-sentinel: 已知的哨兵节点列表（动态发现）
-# - sentinel config-epoch: 配置纪元
-# - sentinel leader-epoch: 领导者纪元
-# - sentinel current-epoch: 当前纪元
