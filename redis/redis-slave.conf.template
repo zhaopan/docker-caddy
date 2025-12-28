@@ -32,8 +32,8 @@ dir "/data"
 # replicaof will be configured dynamically
 
 # Authentication
-requirepass "REDIS_PASSWORD"
-masterauth "REDIS_PASSWORD"
+requirepass REDIS_PASSWORD
+masterauth REDIS_PASSWORD
 
 # Replica settings
 replica-serve-stale-data yes
