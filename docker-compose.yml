@@ -115,26 +115,48 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
     environment:
+      # 时区
       - GENERIC_TIMEZONE=Asia/Shanghai
       - TZ=Asia/Shanghai
+
+      # 数据库配置
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
       - DB_POSTGRESDB_USER=${POSTGRES_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_POSTGRESDB_POOL_SIZE=10
+
+      # 外部访问配
       - N8N_PROTOCOL=https
       - N8N_HOST=${N8N_HOST}
       - WEBHOOK_URL=https://${N8N_HOST}/
+
+      # 安全配置
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASS}
+      - N8N_ENCRYPTION_KEY=${N8N_KEY}
       - NODE_ENV=production
+
+      # 安全/兼容性
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
+
+      # 并发
+      - N8N_CONCURRENCY_PRODUCTION_LIMIT=20
       - N8N_RUNNERS_ENABLED=true
       - N8N_EXECUTIONS_MODE=queue
       - N8N_QUEUE_MODE=true
       - QUEUE_BULL_REDIS_HOST=redis
-      - QUEUE_BULL_REDIS_PASSWORD=${REDIS_PASSWORD}
+
+      # CORS 配置
       - N8N_CORS_ENABLED=true
       - N8N_CORS_ALLOWED_ORIGINS=*
+      - N8N_CORS_ALLOWED_METHODS=GET,POST,PUT,PATCH,DELETE
+      - N8N_CORS_ALLOWED_HEADERS=*
     depends_on:
       postgres:
         condition: service_healthy
