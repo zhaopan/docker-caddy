@@ -139,6 +139,7 @@ services:
       - N8N_BASIC_AUTH_PASSWORD=${N8N_PASS}
       - N8N_ENCRYPTION_KEY=${N8N_KEY}
       - NODE_ENV=production
+      - N8N_BLOCK_FS_WRITE_ACCESS=false
 
       # 安全/兼容性
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
