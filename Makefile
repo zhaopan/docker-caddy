@@ -91,6 +91,13 @@ restart:
 
 status:
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) ps $(SERVICE)
+	@echo "docker info:"
+	@IDS=$$($(DOCKER_COMPOSE) $(COMPOSE_FILES) ps $(SERVICE) --format "{{.ID}}" 2>/dev/null); \
+	if [ -z "$$IDS" ]; then \
+		echo "!!!"; \
+	else \
+		docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}" $$IDS; \
+	fi
 
 st: status
 
