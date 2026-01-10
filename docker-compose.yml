@@ -29,7 +29,11 @@ services:
 
   ######## redis (Standard) ########
   redis:
-    image: redis:${REDIS_VERSION}-alpine
+    build:
+      context: ./redis
+      args:
+        - REDIS_VER=${REDIS_VERSION}
+    image: ${AUTHOR}/${REDIS_NAME}:${REDIS_VERSION}
     container_name: ${REDIS_NAME}
     ports:
       - "${REDIS_PORT}:6379"
