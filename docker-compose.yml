@@ -128,6 +128,15 @@ services:
       - GENERIC_TIMEZONE=Asia/Shanghai
       - TZ=Asia/Shanghai
 
+      # 文件访问
+      - N8N_BLOCK_FS_WRITE_ACCESS=false
+      - N8N_BLOCK_FS_READ_ACCESS=false
+      - N8N_BLOCK_FILE_ACCESS_TO_N8N_FILES=false
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - NODES_EXCLUDE=[]
+      - N8N_PROXY_HOPS=1
+      - N8N_RESTRICT_FILE_ACCESS_TO=/home/node/.n8n/backup
+
       # 数据库配置
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
@@ -151,7 +160,7 @@ services:
       - N8N_BLOCK_FS_WRITE_ACCESS=false
 
       # 安全/兼容性
-      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - N8N_GIT_NODE_DISABLE_BARE_REPOS=true
 
@@ -214,7 +223,12 @@ volumes:
     name: caddy_config
   grpc_data:
     name: grpc_data
-  n8n_data:
-    name: n8n_data
   mongo_data:
     name: mongo_data
+  n8n_data:
+    name: n8n_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${N8N_PATH}
