@@ -1,7 +1,13 @@
 #/etc/hosts
 x-hosts: &hosts
   extra_hosts:
+    - host.docker.internal:host-gateway
     - default.dev.com:${PROXY_IP}
+    - dev.com:${PROXY_IP}
+    - www.dev.com:${PROXY_IP}
+    - api.dev.com:${PROXY_IP}
+    - admin.dev.com:${PROXY_IP}
+    - grpc.dev.com:${PROXY_IP}
 
 services:
   ######## proxy (Standard) ########
@@ -13,14 +19,19 @@ services:
     image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
     container_name: ${CADDY_NAME}
     hostname: proxy
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp" # 用于支持 HTTP/3
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/conf.d:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/conf.d:/etc/caddy/conf.d
+      - caddy_data:/data/caddy # 证书与元数据
+      - caddy_config:/config/caddy # 运行时配置
+      - caddy_logs:/logs # 日志目录
+      - caddy_www:/var/www/html # 静态资源目录
     networks:
       backend:
         ipv4_address: ${PROXY_IP}
@@ -225,8 +236,32 @@ networks:
 volumes:
   caddy_data:
     name: caddy_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CADDY_ROOT}/data
   caddy_config:
     name: caddy_config
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CADDY_ROOT}/config
+  caddy_logs:
+    name: caddy_logs
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CADDY_ROOT}/logs
+  caddy_www:
+    name: caddy_www
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/www
   grpc_data:
     name: grpc_data
   mongo_data:

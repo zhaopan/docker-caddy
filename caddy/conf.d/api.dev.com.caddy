@@ -1,0 +1,28 @@
+# API Site Configuration
+http://api.dev.com {
+	#tls internal
+	#tls api@xxabb.xyz
+
+	root * /var/www/html/api.dev.com
+
+	reverse_proxy host.docker.internal:18010 {
+		health_uri /health
+		health_interval 30s
+	}
+
+	header {
+		Access-Control-Allow-Origin "*"
+		Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+		Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+	}
+
+	encode gzip
+
+	log {
+		output file /logs/api.dev.com.log
+		format json
+		level INFO
+	}
+}

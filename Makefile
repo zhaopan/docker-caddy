@@ -127,5 +127,6 @@ else
 endif
 
 rebuild:
+	@$(MAKE) prepare-sentinel --no-print-directory
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) build --no-cache $(SERVICE)
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) up -d --force-recreate $(SERVICE)
