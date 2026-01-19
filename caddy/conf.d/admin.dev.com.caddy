@@ -1,0 +1,36 @@
+# Admin Site Configuration
+http://admin.dev.com {
+	#tls internal
+	#tls admin@xxabb.xyz
+
+	root * /var/www/html/admin.dev.com
+
+	file_server
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	# Cache control for admin static assets
+	@static {
+		path *.css *.js *.png *.jpg *.jpeg *.gif *.svg *.ico
+	}
+	header @static Cache-Control "public, max-age=3600"
+
+	# No cache for admin pages
+	@admin_pages {
+		path /admin/*
+	}
+	header @admin_pages Cache-Control "no-cache, no-store, must-revalidate"
+
+	encode gzip
+
+	log {
+		output file /logs/admin.dev.com.log
+		format json
+		level INFO
+	}
+}

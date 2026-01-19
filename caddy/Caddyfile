@@ -1,12 +1,18 @@
-# Caddy 配置
+# Caddy 全局配置
 {
-    # 日志配置
-    log {
-        output file /data/logs/caddy.log
-        format console
-        level INFO
-    }
+	log {
+		output file /logs/caddy.log {
+			roll_size 10mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format console {
+			time_format "iso8601"
+		}
+		level INFO
+	}
+	email syszhaopan@gmail.com
 }
 
-# 导入站点配置
-import conf.d/*.caddy
+# 加载配置
+import /etc/caddy/conf.d/*.caddy

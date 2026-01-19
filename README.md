@@ -80,6 +80,22 @@ docker-caddy/
 2. **模式切换**：如果您想从 `standard` 切换到 `cluster`，建议先执行 `make down` 清理旧容器，以防止容器名或端口冲突。
 3. **数据策略**：MySQL/Mongo/Postgres 等服务在所有模式下共享数据 (`./data/service_name`)；Redis 在 Standard 模式下使用 `./data/redis`，在 HA/Cluster 模式下使用 `./data/redis-ha/` 以避免冲突。
 
+## 本地开发 Tips
+
+1. **域名访问**：为了在本地浏览器访问，请将以下内容加入宿主机的 `hosts` 文件（Windows 路径：`C:\Windows\System32\drivers\etc\hosts`）：
+   ```text
+   127.0.0.1 dev.com
+   127.0.0.1 www.dev.com
+   127.0.0.1 admin.dev.com
+   127.0.0.1 api.dev.com
+   127.0.0.1 grpc.dev.com
+   ```
+2. **宿主机通信**：容器内的 Caddy 已配置 `host.docker.internal` 映射。你可以直接在配置中引用宿主机服务（如 `reverse_proxy host.docker.internal:{YOUR-PORT}`）。
+3. **HTTPS 证书警告**：由于使用 `tls internal` 自签名证书，浏览器会弹出安全警告。
+   - **Chrome/Edge**：在页面任意位置直接输入 `thisisunsafe` 即可跳过。
+   - 或点击“高级” -> “继续前往”。
+4. **端口占用**：请确保本地 80 和 443 端口未被其他程序（如 IIS、Nginx 宿主机版）占用。
+
 ## 开源协议
 
 MIT License.

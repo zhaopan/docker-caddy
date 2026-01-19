@@ -298,7 +298,7 @@ curl http://localhost:3002/health
 ### 日志文件位置
 
 ```txt
-/data/logs/
+/data/caddy/logs/
 ├── caddy.log      # Caddy 主日志
 ├── home.log       # 主站点访问日志
 ├── api.log        # API 接口访问日志
@@ -492,6 +492,31 @@ new-site {
         level INFO
     }
 }
+```
+
+## bash
+
+```bash
+# 格式化 Caddyfile
+docker exec caddy sh -c "caddy fmt --overwrite /etc/caddy/Caddyfile"
+
+# 格式化配置 dev.com.caddy
+docker exec caddy sh -c "caddy fmt --overwrite /etc/caddy/conf.d/dev.com.caddy"
+
+# 目录权限设置
+chown -R 1000:1000 ./data/caddy/logs
+chown -R 1000:1000 ./data/caddy/data
+chown -R 1000:1000 ./data/caddy/www
+chmod -R 755 ./data/caddy/www
+
+# 热重载
+docker exec -it caddy caddy reload --config /etc/caddy/Caddyfile
+
+# 验证语法
+docker exec -it caddy caddy validate --config /etc/caddy/Caddyfile
+
+# 查看 Caddy 当前正在生效的配置
+docker exec -it caddy caddy adapt --config //etc/caddy/Caddyfile --pretty
 ```
 
 ## 版本信息

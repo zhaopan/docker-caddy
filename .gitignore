@@ -39,6 +39,7 @@ redis/generated/
 .idea/
 .vscode/
 .agent/
+.kiro/
 
 # Data
 data/

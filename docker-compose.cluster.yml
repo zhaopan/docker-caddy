@@ -3,7 +3,7 @@ x-hosts: &hosts
     - default.dev.com:${PROXY_IP}
 
 services:
-  ######## proxy (Overridden for Cluster) ########
+  ######## proxy (Entrance LB) ########
   proxy:
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
@@ -11,7 +11,16 @@ services:
       - CADDY_CLUSTER_STORAGE_REDIS_ADDRESS=redis-master:6379
       - CADDY_CLUSTER_STORAGE_REDIS_PASSWORD=${REDIS_PASSWORD}
       - CADDY_CLUSTER_STORAGE_REDIS_DB=1
+    volumes:
+      # 用负载均衡配置文件直接覆盖主 Caddyfile
+      # 这样 LB 节点就不会去加载 conf.d/*，从而避免了与单机配置的冲突
+      - ./caddy/worker-proxy.caddy:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data/caddy # 证书与元数据
+      - caddy_config:/config/caddy # 运行时配置
+      - caddy_logs:/logs # 日志目录
+      - caddy_www:/var/www/html # 静态资源目录
 
+  ######## proxy-worker (Actual Site Logic) ########
   proxy-worker1:
     build:
       context: ./caddy
@@ -19,14 +28,13 @@ services:
         - CADDY_VERSION=${CADDY_VERSION}
     image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
     container_name: ${CADDY_NAME}-worker1
-    ports:
-      - "8001:80"
-      - "1443:443"
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/conf.d:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/conf.d:/etc/caddy/conf.d
+      - caddy_data:/data/caddy # 证书与元数据
+      - caddy_config:/config/caddy # 运行时配置
+      - caddy_logs:/logs # 日志目录
+      - caddy_www:/var/www/html # 静态资源目录
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
       - CADDY_CLUSTER_STORAGE=redis
@@ -44,14 +52,13 @@ services:
         - CADDY_VERSION=${CADDY_VERSION}
     image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
     container_name: ${CADDY_NAME}-worker2
-    ports:
-      - "8002:80"
-      - "2443:443"
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/conf.d:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/conf.d:/etc/caddy/conf.d
+      - caddy_data:/data/caddy # 证书与元数据
+      - caddy_config:/config/caddy # 运行时配置
+      - caddy_logs:/logs # 日志目录
+      - caddy_www:/var/www/html # 静态资源目录
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
       - CADDY_CLUSTER_STORAGE=redis
@@ -69,14 +76,13 @@ services:
         - CADDY_VERSION=${CADDY_VERSION}
     image: ${AUTHOR}/${CADDY_NAME}:${CADDY_VERSION}
     container_name: ${CADDY_NAME}-worker3
-    ports:
-      - "8003:80"
-      - "3443:443"
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./caddy/conf.d:/etc/caddy/conf.d:ro
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/conf.d:/etc/caddy/conf.d
+      - caddy_data:/data/caddy # 证书与元数据
+      - caddy_config:/config/caddy # 运行时配置
+      - caddy_logs:/logs # 日志目录
+      - caddy_www:/var/www/html # 静态资源目录
     environment:
       - CADDY_CLUSTER_NAME=caddy-cluster
       - CADDY_CLUSTER_STORAGE=redis

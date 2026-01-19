@@ -1,0 +1,93 @@
+# Caddy 全局配置
+{
+	log {
+		output file /data/logs/caddy.worker.proxy.log
+		format console
+		level INFO
+	}
+}
+
+# Worker 反向代理配置
+# 用于将请求分发到不同的 Worker 节点
+
+# Worker 负载均衡配置
+worker-proxy.local {
+	# TLS configuration (development)
+	tls internal
+
+	# 负载均衡到多个 Worker 节点
+	reverse_proxy {
+		# Worker 节点列表
+		to caddy-worker1:80
+		to caddy-worker2:80
+		to caddy-worker3:80
+
+		# 负载均衡策略
+		lb_policy round_robin
+
+		# 健康检查
+		health_uri /health
+		health_interval 30s
+		health_timeout 5s
+
+		# 故障转移
+		fail_duration 30s
+		max_fails 3
+	}
+
+	# Security headers
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+
+		# 负载均衡标识
+		X-Load-Balancer "caddy-cluster"
+		X-Backend-Servers "worker1,worker2,worker3"
+	}
+
+	encode gzip
+
+	log {
+		output file /data/logs/worker-proxy.log
+		format json
+		level INFO
+	}
+}
+
+# Worker 健康检查端点
+worker-health.local {
+	tls internal
+	respond "Worker cluster is healthy" 200
+
+	header {
+		X-Health-Check "true"
+		X-Cluster-Status "healthy"
+		X-Worker-Count "3"
+	}
+
+	log {
+		output file /data/logs/worker-health.log
+		format json
+		level INFO
+	}
+}
+
+# Worker 状态监控端点
+worker-status.local {
+	tls internal
+	respond "Worker cluster status: active" 200
+
+	header {
+		Content-Type "application/json"
+		X-Status-Endpoint "true"
+		X-Cluster-Monitor "enabled"
+	}
+
+	log {
+		output file /data/logs/worker-status.log
+		format json
+		level INFO
+	}
+}
