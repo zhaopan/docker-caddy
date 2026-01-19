@@ -71,6 +71,12 @@ services:
     restart: unless-stopped
     ports:
       - ${MYSQL_PORT}:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     networks:
       backend:
         ipv4_address: ${MYSQL_IP}
