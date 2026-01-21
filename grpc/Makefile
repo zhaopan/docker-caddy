@@ -6,10 +6,10 @@ BINARY_NAME_WORKER1=grpc-worker1
 BINARY_NAME_WORKER2=grpc-worker2
 BINARY_NAME_WORKER3=grpc-worker3
 GO_VERSION=1.24
-PORT=8000
-WORKER1_PORT=8001
-WORKER2_PORT=8002
-WORKER3_PORT=8003
+PORT=3000
+WORKER1_PORT=3001
+WORKER2_PORT=3002
+WORKER3_PORT=3003
 
 # 默认目标
 .PHONY: all
@@ -196,6 +196,8 @@ status:
 	@echo "gRPC 服务状态:"
 	@echo ""
 	@ps aux | grep -E "$(BINARY_NAME)|$(BINARY_NAME_WORKER1)|$(BINARY_NAME_WORKER2)|$(BINARY_NAME_WORKER3)" | grep -v grep || echo "没有运行的服务"
+
+st: status
 
 # 查看端口使用情况
 .PHONY: ports
