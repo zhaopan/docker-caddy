@@ -55,9 +55,9 @@ services:
       - ./data/redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 3s
       timeout: 5s
-      retries: 10
+      retries: 20
     networks:
       backend:
         ipv4_address: ${REDIS_IP}
@@ -101,6 +101,7 @@ services:
         - MONGO_VERSION=${MONGO_VERSION}
     image: ${AUTHOR}/${MONGO_NAME}:${MONGO_VERSION}
     container_name: ${MONGO_NAME}
+    restart: unless-stopped
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
@@ -108,7 +109,11 @@ services:
       - ${MONGO_CONF_PATH}:/etc/mongod.conf:ro
       - ./data/mongo/db:/data/db
       - ./data/mongo/configdb:/data/configdb
-    restart: unless-stopped
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.4"]
+    deploy:
+      resources:
+        limits:
+          memory: 400MB
     ports:
       - ${MONGO_PORT}:27017
     networks:
@@ -158,9 +163,9 @@ services:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=postgres
       - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
-      - DB_POSTGRESDB_USER=${POSTGRES_USER}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_POSTGRESDB_DATABASE=${PG_DB}
+      - DB_POSTGRESDB_USER=${PG_USER}
+      - DB_POSTGRESDB_PASSWORD=${PG_PASSWORD}
       - DB_POSTGRESDB_POOL_SIZE=10
 
       # 外部访问配
@@ -205,21 +210,26 @@ services:
 
   ######## postgres ########
   postgres:
-    image: postgres:${POSTGRES_VERSION}
-    container_name: postgres
+    build:
+      context: ./postgres
+      args:
+        - PG_VERSION=${PG_VERSION}
+    image: ${AUTHOR}/${PG_NAME}:${PG_VERSION}
+    container_name: ${PG_NAME}
     ports:
-      - ${POSTGRES_PORT}:5432
+      - ${PG_PORT}:5432
     restart: unless-stopped
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=200"]
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
       TZ: Asia/Shanghai
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB}"]
+      interval: 3s
       timeout: 5s
-      retries: 10
+      retries: 20
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks:

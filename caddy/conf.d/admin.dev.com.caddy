@@ -5,6 +5,8 @@ http://admin.dev.com {
 
 	root * /var/www/html/admin.dev.com
 
+	try_files {path} {path}/ /index.html
+
 	file_server
 
 	header {

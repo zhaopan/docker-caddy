@@ -19,7 +19,7 @@ endif
 # --- Service & Command Definition ---
 CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload rebuild
 # Define valid services for validation (including aliases)
-VALID_SERVICES := proxy caddy redis mysql mongo grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3
+VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3
 
 # Extract words that are not commands or mode assignments
 RAW_GOALS := $(filter-out $(CMD_LIST) MODE=%,$(MAKECMDGOALS))
