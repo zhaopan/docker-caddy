@@ -365,8 +365,8 @@ func (app *WebApp) getRedisStatus(c *gin.Context) {
 	}
 
 	success(c, gin.H{
-		"master_addr":  masterAddr,
-		"slave_addrs":  slaveAddrs,
+		"master_addr":   masterAddr,
+		"slave_addrs":   slaveAddrs,
 		"sentinel_info": sentinelInfo,
 	})
 }
@@ -390,7 +390,7 @@ func (app *WebApp) healthCheck(c *gin.Context) {
 	}
 
 	success(c, gin.H{
-		"status": "healthy",
+		"status":    "healthy",
 		"timestamp": time.Now().Unix(),
 	})
 }
@@ -421,27 +421,27 @@ func (app *WebApp) setupRoutes() *gin.Engine {
 	api := r.Group("/api/v1")
 	{
 		// 基本键值操作
-		api.POST("/kv", app.setKeyValue)           // 设置键值对
-		api.GET("/kv/:key", app.getKeyValue)       // 获取键值对
-		api.DELETE("/kv/:key", app.deleteKey)      // 删除键
-		api.GET("/kv/:key/exists", app.existsKey)  // 检查键是否存在
+		api.POST("/kv", app.setKeyValue)          // 设置键值对
+		api.GET("/kv/:key", app.getKeyValue)      // 获取键值对
+		api.DELETE("/kv/:key", app.deleteKey)     // 删除键
+		api.GET("/kv/:key/exists", app.existsKey) // 检查键是否存在
 
 		// 用户操作
-		api.POST("/users", app.setUser)     // 设置用户
-		api.GET("/users/:id", app.getUser)  // 获取用户
+		api.POST("/users", app.setUser)    // 设置用户
+		api.GET("/users/:id", app.getUser) // 获取用户
 
 		// 列表操作
-		api.POST("/lists", app.addListItem)        // 添加列表项
-		api.GET("/lists/:list_key", app.getList)   // 获取列表
+		api.POST("/lists", app.addListItem)                 // 添加列表项
+		api.GET("/lists/:list_key", app.getList)            // 获取列表
 		api.DELETE("/lists/:list_key/pop", app.popListItem) // 弹出列表项
 
 		// 集合操作
-		api.POST("/sets", app.addSetMember)        // 添加集合成员
+		api.POST("/sets", app.addSetMember)          // 添加集合成员
 		api.GET("/sets/:set_key", app.getSetMembers) // 获取集合成员
 
 		// 系统操作
 		api.GET("/redis/status", app.getRedisStatus) // 获取 Redis 状态
-		api.GET("/health", app.healthCheck)         // 健康检查
+		api.GET("/health", app.healthCheck)          // 健康检查
 	}
 
 	return r

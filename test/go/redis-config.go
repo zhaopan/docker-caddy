@@ -10,8 +10,8 @@ import (
 
 // RedisSentinelConfig Redis 哨兵配置结构体
 type RedisSentinelConfig struct {
-	MasterClient *redis.Client
-	SlaveClient  *redis.Client
+	MasterClient   *redis.Client
+	SlaveClient    *redis.Client
 	SentinelClient *redis.Client
 }
 
@@ -32,46 +32,46 @@ func init() {
 
 	// 创建哨兵客户端
 	sentinelClient := redis.NewFailoverClient(&redis.FailoverOptions{
-		MasterName:    masterName,
-		SentinelAddrs: sentinelAddrs,
-		Password:      password,
-		DB:            0,
-		DialTimeout:   5 * time.Second,
-		ReadTimeout:   3 * time.Second,
-		WriteTimeout:  3 * time.Second,
-		PoolTimeout:   4 * time.Second,
-		IdleTimeout:   5 * time.Minute,
-		MaxRetries:    3,
+		MasterName:      masterName,
+		SentinelAddrs:   sentinelAddrs,
+		Password:        password,
+		DB:              0,
+		DialTimeout:     5 * time.Second,
+		ReadTimeout:     3 * time.Second,
+		WriteTimeout:    3 * time.Second,
+		PoolTimeout:     4 * time.Second,
+		IdleTimeout:     5 * time.Minute,
+		MaxRetries:      3,
 		MinRetryBackoff: 8 * time.Millisecond,
 		MaxRetryBackoff: 512 * time.Millisecond,
 	})
 
 	// 创建主节点客户端
 	masterClient := redis.NewClient(&redis.Options{
-		Addr:         "localhost:6379", // 主节点地址
-		Password:     password,
-		DB:           0,
-		DialTimeout:  5 * time.Second,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
-		PoolTimeout:  4 * time.Second,
-		IdleTimeout:  5 * time.Minute,
-		MaxRetries:   3,
+		Addr:            "localhost:6379", // 主节点地址
+		Password:        password,
+		DB:              0,
+		DialTimeout:     5 * time.Second,
+		ReadTimeout:     3 * time.Second,
+		WriteTimeout:    3 * time.Second,
+		PoolTimeout:     4 * time.Second,
+		IdleTimeout:     5 * time.Minute,
+		MaxRetries:      3,
 		MinRetryBackoff: 8 * time.Millisecond,
 		MaxRetryBackoff: 512 * time.Millisecond,
 	})
 
 	// 创建从节点客户端
 	slaveClient := redis.NewClient(&redis.Options{
-		Addr:         "localhost:6380", // 从节点地址
-		Password:     password,
-		DB:           0,
-		DialTimeout:  5 * time.Second,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
-		PoolTimeout:  4 * time.Second,
-		IdleTimeout:  5 * time.Minute,
-		MaxRetries:   3,
+		Addr:            "localhost:6380", // 从节点地址
+		Password:        password,
+		DB:              0,
+		DialTimeout:     5 * time.Second,
+		ReadTimeout:     3 * time.Second,
+		WriteTimeout:    3 * time.Second,
+		PoolTimeout:     4 * time.Second,
+		IdleTimeout:     5 * time.Minute,
+		MaxRetries:      3,
 		MinRetryBackoff: 8 * time.Millisecond,
 		MaxRetryBackoff: 512 * time.Millisecond,
 	})
