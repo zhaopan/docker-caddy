@@ -9,6 +9,7 @@
 *.dylib
 test/go/web-app
 test/go/test-redis
+test/go/test-caddy
 grpc/grpc-service
 grpc/grpc-worker1
 grpc/grpc-worker2
@@ -48,5 +49,4 @@ data/
 caddy/conf.d/*.caddy
 
 # log
-
 logs/

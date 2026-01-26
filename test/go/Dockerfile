@@ -16,6 +16,7 @@ COPY . .
 # 构建应用
 RUN go build -o web-app web-app.go redis-config.go
 RUN go build -o test-redis test-redis.go redis-config.go
+RUN go build -o test-caddy test-caddy.go
 
 # 运行阶段
 FROM alpine:latest
@@ -29,6 +30,7 @@ WORKDIR /root/
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/web-app .
 COPY --from=builder /app/test-redis .
+COPY --from=builder /app/test-caddy .
 
 # 暴露端口
 EXPOSE 8080
