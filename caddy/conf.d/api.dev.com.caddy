@@ -21,8 +21,14 @@ http://api.dev.com {
 	encode gzip
 
 	log {
-		output file /logs/api.dev.com.log
-		format json
+		output file /logs/api.dev.com.log {
+			roll_size 10mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json {
+			time_format "iso8601"
+		}
 		level INFO
 	}
 }

@@ -1,5 +1,5 @@
 # Home Site Configuration
-http://home.xxabb.xyz {
+http://home.xxabb.xyz http://dev.com {
 	#tls internal
 	#tls home@xxabb.xyz
 

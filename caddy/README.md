@@ -404,6 +404,23 @@ make caddy-logs
 }
 ```
 
+详细日志记录:
+
+
+```
+log {
+    output file /data/logs/caddy.log {
+        roll_size 10mb
+        roll_keep 10
+        roll_keep_for 720h
+    }
+    format json {
+        time_format "iso8601"
+    }
+    level INFO
+}
+```
+
 ## 性能优化
 
 ### 1. 缓存配置
@@ -501,6 +518,8 @@ new-site {
 docker exec caddy sh -c "caddy fmt --overwrite /etc/caddy/Caddyfile"
 
 # 格式化配置 dev.com.caddy
+docker exec -it caddy sh -c 'for f in /etc/caddy/conf.d/*.caddy; do caddy fmt --overwrite "$f"; done'
+# 单个
 docker exec caddy sh -c "caddy fmt --overwrite /etc/caddy/conf.d/dev.com.caddy"
 
 # 目录权限设置

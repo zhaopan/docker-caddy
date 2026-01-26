@@ -4,6 +4,7 @@
 BINARY_NAME=redis-sentinel-test
 WEB_BINARY_NAME=web-app
 TEST_BINARY_NAME=test-redis
+CADDY_BINARY_NAME=test-caddy
 GO_VERSION=1.24
 
 # 默认目标
@@ -24,6 +25,8 @@ build: deps
 	go build -o $(WEB_BINARY_NAME) web-app.go redis-config.go
 	@echo "构建测试程序..."
 	go build -o $(TEST_BINARY_NAME) test-redis.go redis-config.go
+	@echo "构建 Caddy 测试程序..."
+	go build -o $(CADDY_BINARY_NAME) test-caddy.go
 
 # 运行 Redis 配置测试
 .PHONY: test
@@ -43,11 +46,17 @@ run: build
 	@echo "运行 Redis 配置程序..."
 	./$(BINARY_NAME)
 
+# 运行 Caddy 测试
+.PHONY: test-caddy
+test-caddy: build
+	@echo "运行 Caddy 测试..."
+	./$(CADDY_BINARY_NAME) -u http://dev.com -n 10000 -c 10 -i 1000
+
 # 清理构建文件
 .PHONY: clean
 clean:
 	@echo "清理构建文件..."
-	rm -f $(BINARY_NAME) $(WEB_BINARY_NAME) $(TEST_BINARY_NAME)
+	rm -f $(BINARY_NAME) $(WEB_BINARY_NAME) $(TEST_BINARY_NAME) $(CADDY_BINARY_NAME)
 
 # 格式化代码
 .PHONY: fmt
@@ -76,6 +85,7 @@ help:
 	@echo "  test      - 运行 Redis 配置测试"
 	@echo "  web       - 启动 Web 应用"
 	@echo "  run       - 运行 Redis 配置程序"
+	@echo "  test-caddy - 运行 Caddy 测试"
 	@echo "  clean     - 清理构建文件"
 	@echo "  fmt       - 格式化代码"
 	@echo "  vet       - 运行代码检查"

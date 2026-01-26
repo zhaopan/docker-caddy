@@ -32,16 +32,16 @@ log_error() {
 log_header "Cleaning up Project Environment"
 
 # 1. Stop and remove containers and volumes
-if [ -f "docker-compose.yml" ]; then
-    log_info "Stopping and removing containers and volumes..."
-    # Use -v to remove volumes associated with the project
-    if docker compose version >/dev/null 2>&1; then
-        docker compose down --remove-orphans -v
-    else
-        docker-compose down --remove-orphans -v
-    fi
-    log_success "Containers and volumes removed."
-fi
+# if [ -f "docker-compose.yml" ]; then
+#     log_info "Stopping and removing containers and volumes..."
+#     # Use -v to remove volumes associated with the project
+#     if docker compose version >/dev/null 2>&1; then
+#         docker compose down --remove-orphans -v
+#     else
+#         docker-compose down --remove-orphans -v
+#     fi
+#     log_success "Containers and volumes removed."
+# fi
 
 # 2. Remove Network
 # if docker network inspect backend >/dev/null 2>&1; then
@@ -72,5 +72,8 @@ fi
 #         log_info "Skipping data removal."
 #     fi
 # fi
+
+# 清理日志
+find ./data/caddy/logs -type f -name "*.log" -exec sh -c '> "{}"' \;
 
 printf "\n${GREEN}===> Cleanup Complete! <===${NC}\n"
