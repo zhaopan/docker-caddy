@@ -1,5 +1,6 @@
 #/etc/hosts
-x-hosts: &hosts
+x-hosts:
+  &hosts
   extra_hosts:
     - host.docker.internal:host-gateway
     - default.dev.com:${PROXY_IP}
@@ -50,11 +51,21 @@ services:
       - "${REDIS_PORT}:6379"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    command:
+      [
+        "redis-server",
+        "--requirepass",
+        "${REDIS_PASSWORD}",
+      ]
     volumes:
       - ./data/redis:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "ping",
+        ]
       interval: 3s
       timeout: 5s
       retries: 20
@@ -83,7 +94,17 @@ services:
     ports:
       - ${MYSQL_PORT}:3306
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${MYSQL_ROOT_PASSWORD}",
+        ]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -109,7 +130,12 @@ services:
       - ${MONGO_CONF_PATH}:/etc/mongod.conf:ro
       - ./data/mongo/db:/data/db
       - ./data/mongo/configdb:/data/configdb
-    command: ["mongod", "--wiredTigerCacheSizeGB", "0.4"]
+    command:
+      [
+        "mongod",
+        "--wiredTigerCacheSizeGB",
+        "0.4",
+      ]
     deploy:
       resources:
         limits:
@@ -150,6 +176,12 @@ services:
       - GENERIC_TIMEZONE=Asia/Shanghai
       - TZ=Asia/Shanghai
 
+      # 开启二进制数据存储目录迁移
+      - N8N_MIGRATE_FS_STORAGE_PATH=true
+
+      # 加解密套件
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto
+
       # 文件访问
       - N8N_BLOCK_FS_WRITE_ACCESS=false
       - N8N_BLOCK_FS_READ_ACCESS=false
@@ -186,7 +218,6 @@ services:
 
       # 并发
       - N8N_CONCURRENCY_PRODUCTION_LIMIT=20
-      - N8N_RUNNERS_ENABLED=true
       - N8N_EXECUTIONS_MODE=queue
       - N8N_QUEUE_MODE=true
       - QUEUE_BULL_REDIS_HOST=redis
@@ -210,24 +241,36 @@ services:
 
   ######## postgres ########
   postgres:
-    build:
-      context: ./postgres
-      args:
-        - PG_VERSION=${PG_VERSION}
-    image: ${AUTHOR}/${PG_NAME}:${PG_VERSION}
+    # 原生 postgres
+    # build:
+    #   context: ./postgres
+    #   args:
+    #     - PG_VERSION=${PG_VERSION}
+    image: pgvector/pgvector:${PG_VERSION}
     container_name: ${PG_NAME}
     ports:
       - ${PG_PORT}:5432
     restart: unless-stopped
-    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=200"]
+    command:
+      [
+        "postgres",
+        "-c",
+        "shared_buffers=256MB",
+        "-c",
+        "max_connections=200",
+      ]
     environment:
       POSTGRES_DB: ${PG_DB}
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       TZ: Asia/Shanghai
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB}"]
-      interval: 3s
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PG_USER} -d ${PG_DB}",
+        ]
+      interval: 5s
       timeout: 5s
       retries: 20
     volumes:
