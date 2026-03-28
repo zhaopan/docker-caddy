@@ -176,6 +176,9 @@ services:
       - GENERIC_TIMEZONE=Asia/Shanghai
       - TZ=Asia/Shanghai
 
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_HOST=ollama
+
       # 开启二进制数据存储目录迁移
       - N8N_MIGRATE_FS_STORAGE_PATH=true
 
@@ -235,6 +238,36 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      ollama:
+        condition: service_healthy
+    networks:
+      - backend
+    <<: *hosts
+
+  ######## ollama ########
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-embeddings
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./data/ollama:/root/.ollama
+    environment:
+      - OLLAMA_MODELS=/root/.ollama/models
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "ollama",
+          "list",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    command: serve
     networks:
       - backend
     <<: *hosts
