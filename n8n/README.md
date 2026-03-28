@@ -1,10 +1,10 @@
 # 权限问题
 
 ```bash
+# 目录权限
 mkdir data/n8n/backup
 chmod 775 -R data/n8n/backup
 chown -R 1000:1000 data/n8n/backup
-
 
 # ollama 模型
 docker exec -it ollama ollama pull llama3.2:latest
