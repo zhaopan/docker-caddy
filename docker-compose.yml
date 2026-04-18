@@ -1,6 +1,5 @@
 #/etc/hosts
-x-hosts:
-  &hosts
+x-hosts: &hosts
   extra_hosts:
     - host.docker.internal:host-gateway
     - default.dev.com:${PROXY_IP}
@@ -52,22 +51,11 @@ services:
       - "${REDIS_REDISINSIGHT_PORT}:8001"
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command:
-      [
-        "redis-server",
-        "/etc/redis/redis.conf",
-        "--requirepass",
-        "${REDIS_PASSWORD}",
-      ]
+    command: ["redis-server", "/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
     volumes:
       - ./data/redis:/data
     healthcheck:
-      test:
-        [
-          "CMD",
-          "redis-cli",
-          "ping",
-        ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -96,17 +84,7 @@ services:
     ports:
       - ${MYSQL_PORT}:3306
     healthcheck:
-      test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "-p${MYSQL_ROOT_PASSWORD}",
-        ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -132,12 +110,7 @@ services:
       - ${MONGO_CONF_PATH}:/etc/mongod.conf:ro
       - ./data/mongo/db:/data/db
       - ./data/mongo/configdb:/data/configdb
-    command:
-      [
-        "mongod",
-        "--wiredTigerCacheSizeGB",
-        "0.4",
-      ]
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.4"]
     deploy:
       resources:
         limits:
@@ -194,7 +167,7 @@ services:
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - NODES_EXCLUDE=[]
       - N8N_PROXY_HOPS=1
-      - N8N_RESTRICT_FILE_ACCESS_TO=/home/node/.n8n/backup
+      - N8N_RESTRICT_FILE_ACCESS_TO=/home/node/.n8n/userfiles
 
       # 数据库配置
       - DB_TYPE=postgresdb
@@ -258,13 +231,20 @@ services:
     environment:
       - OLLAMA_MODELS=/root/.ollama/models
       - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_NUM_PARALLEL=4 # 开启 4 并行
+      - OLLAMA_KEEP_ALIVE=-1 # 模型常驻内存，不释放
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia # 确保这一步，GPU 加速对速度影响巨大
+    #           count: all
+    #           capabilities:
+    #             [
+    #               gpu,
+    #             ]
     healthcheck:
-      test:
-        [
-          "CMD",
-          "ollama",
-          "list",
-        ]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -287,30 +267,45 @@ services:
     ports:
       - ${PG_PORT}:5432
     restart: unless-stopped
-    command:
-      [
-        "postgres",
-        "-c",
-        "shared_buffers=256MB",
-        "-c",
-        "max_connections=200",
-      ]
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "max_connections=200"]
     environment:
       POSTGRES_DB: ${PG_DB}
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       TZ: Asia/Shanghai
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${PG_USER} -d ${PG_DB}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB}"]
       interval: 5s
       timeout: 5s
       retries: 20
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - backend
+    <<: *hosts
+
+  ######## openclaw ########
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    pull_policy: if_not_present
+    container_name: openclaw
+    restart: unless-stopped
+    ports:
+      - "18789:18789"
+    command: ["openclaw", "gateway", "--allow-unconfigured"]
+    volumes:
+      - ./data/openclaw:/home/node/.openclaw
+    environment:
+      - TZ=Asia/Shanghai
+      # - OPENCLAW_GATEWAY_MODE=local
+      # - OPENCLAW_GATEWAY_BIND=0.0.0.0
+      # - OPENCLAW_GATEWAY_HOST=0.0.0.0
+      # - OPENCLAW_GATEWAY_PORT=18789
+    links:
+      - redis
+      - postgres
+      - mysql
+      - n8n
     networks:
       - backend
     <<: *hosts
