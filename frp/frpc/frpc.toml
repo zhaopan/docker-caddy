@@ -1,0 +1,15 @@
+serverAddr = "110.110.110.110"
+serverPort = 6500
+
+auth.method = "token"
+auth.token = "X8Qq+aq0rtfg0J8N7riJAdOS"
+
+# 暂时关闭 TLS 尝试，先确保基础鉴权通过
+transport.tls.enable = false
+
+[[proxies]]
+  name = "rdp"
+  type = "tcp"
+  localIP = "127.0.0.1"
+  localPort = 3389
+  remotePort = 3505

@@ -1,0 +1,10 @@
+bindPort = 7000
+
+auth.method = "token"
+auth.token = "X8Qq+aq0rtfg0J8N7riJAdOS"
+
+# 强烈建议开启这个，方便在浏览器看状态
+webServer.addr = "0.0.0.0"
+webServer.port = 7500
+webServer.user = "admin"
+webServer.password = "BH2B4ezuZs0Gp0ELnVjwiisLSk9FxxSh"
