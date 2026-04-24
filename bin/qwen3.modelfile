@@ -1,0 +1,20 @@
+# 继承官方镜像
+FROM qwen3-embedding:0.6b
+
+# --- 性能优化核心参数 ---
+
+# 1. 限制上下文窗口 (关键优化点)
+# 默认可能很大，Embedding 任务通常 2048 足够，减小它可以显著降低首字延迟和显存占用
+PARAMETER num_ctx 2048
+
+# 2. 批处理大小
+# 增大 batch 可以提高吞吐量，建议设为 512
+PARAMETER num_batch 512
+
+# 3. 线程数 (如果在 CPU 环境跑)
+# 建议设为容器分配的核心数，例如 8
+PARAMETER num_thread 8
+
+# 4. 保持模型在显存中的时间
+# 设为 -1 永不释放，避免频繁加载导致的“慢”
+PARAMETER keep_alive -1

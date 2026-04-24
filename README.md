@@ -43,6 +43,8 @@ cp .env.example .env
 - `make clean` : **深度清理** 移除容器、网络及持久化数据（需确认）。
 - `make reload` : **热加载** 刷新 Caddy 配置（自动适配集群模式，无需重启）。
 - `make rebuild [service]` : **强制重构** 不使用缓存重新构建并重启服务。
+- `make frp-install` : **FRP 初始化** 自动创建配置文件并生成初始随机密码。
+- `make frp-reset` : **FRP 密码重置** 重新生成高强度 Token 和面板密码。
 
 ### 单个服务操作 (无需参数名)
 - `make up redis` : 仅启动/更新 Redis。
@@ -65,6 +67,7 @@ docker-caddy/
 ├── mysql/                      # MySQL 配置
 ├── redis/                      # Redis 配置定义
 ├── n8n/                        # n8n 工作流相关逻辑
+├── frp/                        # FRP 服务组件 (frps & frpc)
 │
 └── data/                       # 宿主机持久化数据
     ├── mysql/                  # MySQL 数据 (共享)
@@ -89,6 +92,7 @@ docker-caddy/
    127.0.0.1 admin.dev.com
    127.0.0.1 api.dev.com
    127.0.0.1 grpc.dev.com
+   127.0.0.1 frp.dev.com
    ```
 2. **宿主机通信**：容器内的 Caddy 已配置 `host.docker.internal` 映射。你可以直接在配置中引用宿主机服务（如 `reverse_proxy host.docker.internal:{YOUR-PORT}`）。
 3. **HTTPS 证书警告**：由于使用 `tls internal` 自签名证书，浏览器会弹出安全警告。

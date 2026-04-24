@@ -1,0 +1,165 @@
+# 此配置文件仅供参考。
+# IPv6 地址或主机名必须用方括号括起来，
+# 例如 "[::1]:80", "[ipv6-host]:http" 或 "[ipv6-host%zone]:80"
+# 对于单个 "bindAddr" 字段，不需要方括号，如 `bindAddr = "::"`。
+bindAddr = "0.0.0.0"
+bindPort = 7000
+
+# 用于 kcp 协议的 udp 端口，可以与 'bindPort' 相同。
+# 如果未设置，frps 将禁用 kcp。
+kcpBindPort = 7000
+# 用于辅助 udp 打洞以穿透 nat 的 udp 端口
+bindUDPPort = 7001
+
+# 用于 quic 协议的 udp 端口。
+# 如果未设置，frps 将禁用 quic。
+# quicBindPort = 7002
+
+# 指定代理监听的地址，默认值与 bindAddr 相同
+# proxyBindAddr = "127.0.0.1"
+
+# quic 协议选项
+# transport.quic.keepalivePeriod = 10
+# transport.quic.maxIdleTimeout = 30
+# transport.quic.maxIncomingStreams = 100000
+
+# 心跳配置，不建议修改默认值
+# heartbeatTimeout 的默认值为 90。设置为负值可禁用它。
+# transport.heartbeatTimeout = 90
+
+# 每个代理中的连接池数量将保持在不超过 maxPoolCount。
+transport.maxPoolCount = 5
+
+# 如果使用 tcp 流复用，默认为 true
+# transport.tcpMux = true
+
+# 指定 tcp 复用的保持活动间隔。
+# 仅在 tcpMux 为 true 时有效。
+# transport.tcpMuxKeepaliveInterval = 30
+
+# tcpKeepalive 指定 frpc 和 frps 之间活动网络连接的保持活动探测间隔。
+# 如果为负值，则禁用保持活动探测。
+# transport.tcpKeepalive = 7200
+
+# transport.tls.force 指定是否仅接受 TLS 加密连接。默认值为 false。
+transport.tls.force = false
+
+# transport.tls.certFile = "server.crt"
+# transport.tls.keyFile = "server.key"
+# transport.tls.trustedCaFile = "ca.crt"
+
+# 如果要支持虚拟主机，必须设置用于监听的 http 端口（可选）
+# 注意：http 端口和 https 端口可以与 bindPort 相同
+vhostHTTPPort = 80
+vhostHTTPSPort = 443
+
+# 虚拟主机 http 服务器的响应头超时（秒），默认为 60s
+# vhostHTTPTimeout = 60
+
+# tcpmuxHTTPConnectPort 指定服务器监听 TCP HTTP CONNECT 请求的端口。
+# 如果值为 0，服务器将不会在单个端口上复用 TCP 请求。
+# 如果不是 0，它将在此值上监听 HTTP CONNECT 请求。默认值为 0。
+# tcpmuxHTTPConnectPort = 1337
+
+# 如果 tcpmuxPassthrough 为 true，frps 不会对流量进行任何更新。
+# tcpmuxPassthrough = false
+
+# 配置 Web 服务器以启用 frps 的仪表板。
+# 仅当设置了 webServer.port 时，仪表板才可用。
+webServer.addr = "0.0.0.0"
+webServer.port = 7500
+webServer.user = "admin"
+# dashboard_pwd，由 resetpwd.sh 更新
+webServer.password = "admin"
+# webServer.tls.certFile = "server.crt"
+# webServer.tls.keyFile = "server.key"
+# 仪表板静态资源目录（仅用于调试模式）
+# webServer.assetsDir = "./static"
+
+# 在仪表板监听器中启用 golang pprof 处理程序。
+# 必须先设置仪表板端口
+webServer.pprofEnable = false
+
+# enablePrometheus 将在 webServer 的 /metrics api 上导出 prometheus 指标。
+enablePrometheus = true
+
+# 控制台或真实的日志文件路径，如 ./frps.log
+log.to = "./frps.log"
+# trace, debug, info, warn, error
+log.level = "info"
+log.maxDays = 3
+# 当 log.to 为 console 时禁用日志颜色，默认为 false
+log.disablePrintColor = false
+
+# DetailedErrorsToClient 定义是否将特定的错误（带调试信息）发送给 frpc。默认值为 true。
+detailedErrorsToClient = true
+
+# auth.method 指定用于验证 frpc 与 frps 的身份验证方法。
+# 如果指定 "token" - 将从登录消息中读取 token。
+# 如果指定 "oidc" - 将使用 OIDC 设置发出 OIDC（Open ID Connect）令牌。默认值为 "token"。
+auth.method = "token"
+
+# auth.additionalScopes 指定包含身份验证信息的附加范围。
+# 可选值为 HeartBeats, NewWorkConns。
+# auth.additionalScopes = ["HeartBeats", "NewWorkConns"]
+
+# 身份验证 token，由 resetpwd.sh 更新
+auth.token = "12345678"
+
+# oidc issuer 指定用于验证 OIDC 令牌的发行者。
+auth.oidc.issuer = ""
+# oidc audience 指定验证时 OIDC 令牌应包含的受众。
+auth.oidc.audience = ""
+# oidc skipExpiryCheck 指定是否跳过检查 OIDC 令牌是否过期。
+auth.oidc.skipExpiryCheck = false
+# oidc skipIssuerCheck 指定是否跳过检查 OIDC 令牌的发行者声明是否与指定的发行者匹配。
+auth.oidc.skipIssuerCheck = false
+
+# userConnTimeout 指定等待工作连接的最大时间。
+# userConnTimeout = 10
+
+# 仅允许 frpc 绑定你列出的端口。默认情况下不会有任何限制。
+allowPorts = [
+  { start = 2000, end = 3000 },
+  { single = 3001 },
+  { single = 3003 },
+  { start = 4000, end = 50000 }
+]
+
+# 每个客户端可以使用的最大端口数，默认值为 0 表示无限制
+maxPortsPerClient = 0
+
+# 如果 subDomainHost 不为空，你可以在 frpc 的配置中设置 http 或 https 类型的子域名
+# 当子域名为 test 时，路由使用的主机名为 test.frps.com
+subDomainHost = "frps.com"
+
+# HTTP 请求的自定义 404 页面
+# custom404Page = "/path/to/404.html"
+
+# 指定 udp 数据包大小，单位为字节。如果未设置，默认值为 1500。
+# 此参数在客户端和服务器之间应相同。
+# 它影响 udp 和 sudp 代理。
+udpPacketSize = 1500
+
+# NAT 打洞策略数据的保留时间。
+natholeAnalysisDataReserveHours = 168
+
+# ssh 隧道网关
+# 如果要启用此功能，bindPort 参数是必需的，其他参数可选。
+# 默认情况下，此功能已禁用。如果 bindPort 大于 0，它将被启用。
+# sshTunnelGateway.bindPort = 2200
+# sshTunnelGateway.privateKeyFile = "/home/frp-user/.ssh/id_rsa"
+# sshTunnelGateway.autoGenPrivateKeyPath = ""
+# sshTunnelGateway.authorizedKeysFile = "/home/frp-user/.ssh/authorized_keys"
+
+[[httpPlugins]]
+name = "user-manager"
+addr = "127.0.0.1:9000"
+path = "/handler"
+ops = ["Login"]
+
+[[httpPlugins]]
+name = "port-manager"
+addr = "127.0.0.1:9001"
+path = "/handler"
+ops = ["NewProxy"]

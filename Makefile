@@ -17,9 +17,9 @@ else ifeq ($(MODE),cluster)
 endif
 
 # --- Service & Command Definition ---
-CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload rebuild
+CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload rebuild frp-install frp-reset
 # Define valid services for validation (including aliases)
-VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw
+VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw frps frpc
 
 # Extract words that are not commands or mode assignments
 RAW_GOALS := $(filter-out $(CMD_LIST) MODE=%,$(MAKECMDGOALS))
@@ -59,6 +59,8 @@ help:
 	@echo "  make reload            Reload proxy config"
 	@echo "  make down              Remove project"
 	@echo "  make clean             Cleanup project (remove all data/containers)"
+	@echo "  make frp-install       Initialize FRP config"
+	@echo "  make frp-reset         Reset FRP Token & Password"
 
 	@echo ""
 
@@ -130,3 +132,9 @@ rebuild:
 	@$(MAKE) prepare-sentinel --no-print-directory
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) build --no-cache $(SERVICE)
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) up -d --force-recreate $(SERVICE)
+
+frp-install:
+	@cd frp && bash install.sh
+
+frp-reset:
+	@cd frp && bash resetpwd.sh

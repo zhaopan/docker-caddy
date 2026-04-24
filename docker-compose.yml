@@ -8,6 +8,7 @@ x-hosts: &hosts
     - api.dev.com:${PROXY_IP}
     - admin.dev.com:${PROXY_IP}
     - grpc.dev.com:${PROXY_IP}
+    - frp.dev.com:${PROXY_IP}
 
 services:
   ######## proxy (Standard) ########
@@ -228,23 +229,29 @@ services:
       - "11434:11434"
     volumes:
       - ./data/ollama:/root/.ollama
+    deploy:
+      resources:
+        limits:
+          cpus: '2'        # CPU 限制 2核
+          memory: 4G       # 内存限制 4GB
+        reservations:
+          cpus: '1'        # 预留 2核
+          memory: 2G       # 预留 4GB
+          # devices:
+          #   - driver: nvidia # 确保这一步，GPU 加速对速度影响巨大
+          #     count: all
+          #     capabilities:
+          #       [
+          #         gpu,
+          #       ]
     environment:
       - OLLAMA_MODELS=/root/.ollama/models
       - OLLAMA_HOST=0.0.0.0
-      - OLLAMA_NUM_PARALLEL=4 # 开启 4 并行
-      - OLLAMA_KEEP_ALIVE=-1 # 模型常驻内存，不释放
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia # 确保这一步，GPU 加速对速度影响巨大
-    #           count: all
-    #           capabilities:
-    #             [
-    #               gpu,
-    #             ]
+      - OLLAMA_NUM_PARALLEL=1      # 并行请求数
+      - OLLAMA_MAX_LOADED_MODELS=1 # 最多加载模型数
+      - OLLAMA_KEEP_ALIVE=2h      # 模型保持加载时间 -1=模型常驻内存(不释放)
     healthcheck:
-      test: ["CMD", "ollama", "list"]
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -301,13 +308,61 @@ services:
       # - OPENCLAW_GATEWAY_BIND=0.0.0.0
       # - OPENCLAW_GATEWAY_HOST=0.0.0.0
       # - OPENCLAW_GATEWAY_PORT=18789
-    links:
-      - redis
-      - postgres
-      - mysql
-      - n8n
     networks:
       - backend
+    <<: *hosts
+
+  ######## frps ########
+  frps:
+    build:
+      context: ./frp/frps/${FRPS_ARCH}
+      args:
+        - FRP_VERSION=${FRP_VERSION}
+    image: ${AUTHOR}/${FRPS_NAME}:${FRP_VERSION}
+    container_name: ${FRPS_NAME}
+    restart: unless-stopped
+    privileged: true
+    ports:
+      # frps服务端口
+      - "6500:7000"
+      - "6500:7000/udp"
+      # web管理端口
+      - "6501:7500"
+      - "6502:7001/udp"
+      # http端口
+      - "6503:80"
+      # https端口
+      - "6504:443"
+      # 开放给frpc的端口
+      - "3505-3510:3505-3510"
+    volumes:
+      - ${FRPS_CONFIG_PATH}:/etc/frp/frps.toml
+      - ${FRPS_LOG_PATH}:/var/log/frps.log
+    command: -c /etc/frp/frps.toml
+    networks:
+      backend:
+        ipv4_address: ${FRPS_IP}
+    <<: *hosts
+
+  ######## frpc ########
+  frpc:
+    build:
+      context: ./frp/frpc/${FRPC_ARCH}
+      args:
+        - FRP_VERSION=${FRP_VERSION}
+    image: ${AUTHOR}/${FRPC_NAME}:${FRP_VERSION}
+    container_name: ${FRPC_NAME}
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - ${FRPC_CONFIG_PATH}:/etc/frp/frpc.toml
+      - ${FRPC_LOG_PATH}:/var/log/frpc.log
+    command: -c /etc/frp/frpc.toml
+    networks:
+      backend:
+        ipv4_address: ${FRPC_IP}
+    depends_on:
+      - frps
     <<: *hosts
 
 networks:
