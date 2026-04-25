@@ -2,6 +2,7 @@ FROM node:24-alpine
 
 # Set user to root for installation
 USER root
+
 # Arguments that can be passed at build time
 ARG N8N_PATH=/usr/local/lib/node_modules/n8n
 ARG BASE_PATH=/root/.n8n
@@ -29,7 +30,6 @@ ARG DB_POSTGRESDB_USER=$DB_POSTGRESDB_USER
 ARG DB_POSTGRESDB_PASSWORD=$DB_POSTGRESDB_PASSWORD
 ARG NODE_FUNCTION_ALLOW_BUILTIN=*
 ARG NODE_FUNCTION_ALLOW_EXTERNAL=*
-
 # Install system dependencies
 RUN apk add --no-cache \
     git \
@@ -42,15 +42,15 @@ RUN apk add --no-cache \
     pango-dev \
     chromium \
     postgresql-client \
-    ffmpeg \
     yt-dlp
 
 # Set environment variables
 ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
+
 # Install n8n globally
-RUN npm install -g n8n@2.1.4
+RUN npm install -g n8n@2.14.2
 
 # Create necessary directories (<<<<< this is the line that was modified)
 RUN mkdir -p $BASE_PATH \
