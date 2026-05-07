@@ -1,6 +1,0 @@
-frps.dev.com {
-	reverse_proxy frps:7500
-	log {
-		output file /logs/frps.dev.com.log
-	}
-}
