@@ -17,9 +17,9 @@ else ifeq ($(MODE),cluster)
 endif
 
 # --- Service & Command Definition ---
-CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload rebuild frp-install frp-reset
+CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload rebuild frp-install frp-reset fmt trojan-reset
 # Define valid services for validation (including aliases)
-VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw frps frpc
+VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw frps frpc trojan
 
 # Extract words that are not commands or mode assignments
 RAW_GOALS := $(filter-out $(CMD_LIST) MODE=%,$(MAKECMDGOALS))
@@ -51,6 +51,8 @@ help:
 	@echo ""
 	@echo "Usage:"
 	@echo "  make up [service]      Start services"
+	@echo "  make init              Initialize network, .env and passwords"
+	@echo "  make fmt               Format Caddyfile"
 	@echo "  make stop [service]    Stop services"
 	@echo "  make restart [service] Restart services"
 	@echo "  make rebuild [service] Rebuild and restart service"
@@ -61,6 +63,7 @@ help:
 	@echo "  make clean             Cleanup project (remove all data/containers)"
 	@echo "  make frp-install       Initialize FRP config"
 	@echo "  make frp-reset         Reset FRP Token & Password"
+	@echo "  make trojan-reset      Reset Trojan Password & Domain"
 
 	@echo ""
 
@@ -128,6 +131,9 @@ else
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy proxy caddy reload
 endif
 
+fmt:
+	docker exec caddy sh -c "caddy fmt --overwrite /etc/caddy/Caddyfile"
+
 rebuild:
 	@$(MAKE) prepare-sentinel --no-print-directory
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) build --no-cache $(SERVICE)
@@ -138,3 +144,6 @@ frp-install:
 
 frp-reset:
 	@cd frp && bash resetpwd.sh
+
+trojan-reset:
+	@cd trojan && bash reset.sh $(DOMAIN)

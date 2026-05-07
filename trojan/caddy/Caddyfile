@@ -1,0 +1,30 @@
+{
+	# Global settings to allow gRPC over HTTP/2 without TLS (h2c)
+	servers {
+		protocols h1 h2c
+	}
+	order trojan before file_server
+	log {
+		output file /caddy/log/access.log
+		level WARN
+	}
+	trojan {
+		caddy
+		no_proxy
+		users 123456
+	}
+}
+
+:80 {
+	route {
+		trojan {
+			connect_method
+			grpc {
+				service_name "trojan.dev.com"
+			}
+		}
+		file_server {
+			root /caddy/html/zhaopan.github.io-master
+		}
+	}
+}

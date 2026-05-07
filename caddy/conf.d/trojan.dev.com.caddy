@@ -1,0 +1,14 @@
+trojan.dev.com {
+	# 转发 gRPC 和普通 HTTP 流量到 trojan 容器
+	# 使用 h2c (HTTP/2 Cleartext) 协议，因为 trojan 容器内部没有 TLS
+	reverse_proxy trojan:80 {
+		flush_interval -1
+		transport http {
+			versions h2c
+		}
+	}
+
+	log {
+		output file /logs/trojan.dev.com.log
+	}
+}

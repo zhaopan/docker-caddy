@@ -1,104 +1,76 @@
 # Docker Caddy 现代化开发脚手架
 
-基于 Docker Compose 的模块化开发环境，支持 **Standard (单机)**, **Redis-HA (高可用)** 和 **Full-Cluster (全栈集群)** 三种模式。
+基于 Docker Compose 的高度模块化开发与生产环境，集成了 Caddy v2.10+、Redis 高可用、gRPC 支持及 Trojan 代理协议。
 
-## 核心特性
+## 核心架构
 
-- **身份适配叠加架构**：一个基础配置，通过插件化叠加实现功能增强。
-- **单命令统一管理**：通过 `Makefile` 极简控制（支持 `make up redis` 或 `make up MODE=cluster`）。
-- **智能数据管理**：通用服务（MySQL, Mongo 等）跨模式共享数据，Redis HA 模式独立隔离。
-- **全链路高可用**：支持 Caddy 多节点集群负载均衡及 Redis 哨兵集群。
+- **多模式适配**：支持 Standard (单机)、Redis-HA (高可用) 及 Full-Cluster (网关集群) 三种运行模式。
+- **自动化管理**：通过统一的 Makefile 实现环境初始化、服务启停、配置热加载及密码重置。
+- **隔离性设计**：各服务组件（MySQL, Redis, Trojan, n8n）均以独立容器运行，通过外部网桥隔离。
+- **安全保障**：内置自动密码生成工具，所有敏感配置均通过环境变量管理。
+
+## 运行模式说明
+
+| 模式 | 启动命令 | 适用场景 |
+| :--- | :--- | :--- |
+| **Standard** | `make up` | 基础开发环境，单节点 Caddy + 单节点 Redis |
+| **Redis-HA** | `make up MODE=redis-ha` | 数据库增强模式，1主2从3哨兵架构 |
+| **Full-Cluster** | `make up MODE=cluster` | 全栈集群，多节点 Caddy 负载均衡 + Redis HA |
 
 ## 快速开始
 
 ### 1. 环境准备
-
 ```bash
-# 1. 克隆项目
 git clone <repository-url>
 cd docker-caddy
-
-# 2. 准备环境变量
-cp .env.example .env
-# 编辑 .env 以配置密码和域名
+cp .env.example .env  # 基础环境变量配置
 ```
 
-### 2. 选择模式运行
+### 2. 初始化环境
+运行初始化脚本以创建 Docker 网络并生成随机安全密码：
+```bash
+make init
+```
 
-本项目支持三种运行模式，默认为 `standard`。
+### 3. 启动服务
+```bash
+make up
+```
 
-| 模式 | 命令 | 说明 |
-| :--- | :--- | :--- |
-| **Standard (推荐开发)** | `make up` | 单节点 Caddy + 单节点 Redis，最省资源。 |
-| **Redis-HA (数据库增强)** | `make up MODE=redis-ha` | 将 Redis 升级为 1主2从3哨兵。 |
-| **Full-Cluster (全栈集群)** | `make up MODE=cluster` | 在 Redis-HA 基础上增加 3个 Caddy Worker 实现负载均衡。 |
-
-## 键盘侠指南 (常用命令)
+## 常用管理指令
 
 ### 全局操作
-- `make up` : 启动当前模式下的所有服务。
-- `make logs` : 查看所有服务日志。
-- `make status` : 查看当前模式下的容器状态。
-- `make down` : **停止并摧毁** 当前模式下的所有资源。
-- `make clean` : **深度清理** 移除容器、网络及持久化数据（需确认）。
-- `make reload` : **热加载** 刷新 Caddy 配置（自动适配集群模式，无需重启）。
-- `make rebuild [service]` : **强制重构** 不使用缓存重新构建并重启服务。
-- `make frp-install` : **FRP 初始化** 自动创建配置文件并生成初始随机密码。
-- `make frp-reset` : **FRP 密码重置** 重新生成高强度 Token 和面板密码。
+- `make status` : 查看所有服务运行状态与资源占用。
+- `make reload` : 在不重启容器的情况下热加载 Caddy 配置文件。
+- `make down` : 停止并移除所有容器及网络。
+- `make clean` : 彻底清理所有持久化数据（慎用）。
 
-### 单个服务操作 (无需参数名)
-- `make up redis` : 仅启动/更新 Redis。
-- `make logs n8n` : 仅查看 n8n 日志。
-- `make restart mysql` : 重启 MySQL。
-- `make stop caddy` : 停止 Caddy。
+### 服务专用初始化
+- `make frp-install` : 初始化 FRP (frps/frpc) 配置文件。
+- `make frp-reset` : 重新生成 FRP 安全令牌与管理密码。
+- `make trojan-reset` : 一键重置 Trojan 代理密码与服务域名。
 
-## 项目结构
+### 单项服务管理
+- `make up [service]` : 仅启动特定服务 (如 `make up trojan`)。
+- `make logs [service]` : 查看特定服务的实时日志 (如 `make logs caddy`)。
+- `make fmt` : 自动格式化所有 Caddy 配置文件。
 
-```txt
-docker-caddy/
-├── docker-compose.yml          # [核心] 基础包，所有模式的基座
-├── docker-compose.redis-ha.yml # [插件] Redis 高可用增强包
-├── docker-compose.cluster.yml  # [插件] Caddy 集群增强包
-├── Makefile                    # [遥控] 统一管理入口
-├── .env                        # [私密] 端口、版本、密码配置
-│
-├── bin/                        # [脚本] 初始化与清理脚本
-├── caddy/                      # Caddy 自定义构建与站点配置
-├── mysql/                      # MySQL 配置
-├── redis/                      # Redis 配置定义
-├── n8n/                        # n8n 工作流相关逻辑
-├── frp/                        # FRP 服务组件 (frps & frpc)
-│
-└── data/                       # 宿主机持久化数据
-    ├── mysql/                  # MySQL 数据 (共享)
-    ├── mongo/                  # MongoDB 数据 (共享)
-    ├── redis/                  # Redis 单机数据
-    ├── redis-ha/               # Redis HA 集群数据 (隔离)
-    └── cluster/                # Caddy 集群数据 (隔离)
-```
+## 项目结构导航
 
-## 注意事项
+- `caddy/` : 主网关配置，包含 `conf.d/` 站点目录。
+- `trojan/` : Trojan-gRPC 代理模块。
+- `frp/` : 内网穿透组件。
+- `n8n/` : 自动化工作流引擎。
+- `data/` : 持久化数据存储目录（MySQL, Redis, Mongo, Postgres）。
 
-1. **网络自动创建**：第一次运行 `make up` 时，会自动创建一个名为 `backend` 的外部网桥（172.18.0.0/16）。
-2. **模式切换**：如果您想从 `standard` 切换到 `cluster`，建议先执行 `make down` 清理旧容器，以防止容器名或端口冲突。
-3. **数据策略**：MySQL/Mongo/Postgres 等服务在所有模式下共享数据 (`./data/service_name`)；Redis 在 Standard 模式下使用 `./data/redis`，在 HA/Cluster 模式下使用 `./data/redis-ha/` 以避免冲突。
+## 开发注意事项
 
-## 本地开发 Tips
-
-1. **域名访问**：为了在本地浏览器访问，请将以下内容加入宿主机的 `hosts` 文件（Windows 路径：`C:\Windows\System32\drivers\etc\hosts`）：
+1. **Hosts 映射**：本地访问需在 `C:\Windows\System32\drivers\etc\hosts` 中添加：
    ```text
-   127.0.0.1 dev.com
-   127.0.0.1 www.dev.com
-   127.0.0.1 admin.dev.com
-   127.0.0.1 api.dev.com
-   127.0.0.1 grpc.dev.com
-   127.0.0.1 frp.dev.com
+   127.0.0.1 dev.com www.dev.com admin.dev.com api.dev.com trojan.dev.com
    ```
-2. **宿主机通信**：容器内的 Caddy 已配置 `host.docker.internal` 映射。你可以直接在配置中引用宿主机服务（如 `reverse_proxy host.docker.internal:{YOUR-PORT}`）。
-3. **HTTPS 证书警告**：由于使用 `tls internal` 自签名证书，浏览器会弹出安全警告。
-   - **Chrome/Edge**：在页面任意位置直接输入 `thisisunsafe` 即可跳过。
-   - 或点击“高级” -> “继续前往”。
-4. **端口占用**：请确保本地 80 和 443 端口未被其他程序（如 IIS、Nginx 宿主机版）占用。
+2. **网络依赖**：项目依赖名为 `backend` 的外部网桥（172.18.0.0/16），由 `make init` 自动创建。
+3. **配置文件**：站点配置应放置在 `caddy/conf.d/` 下，且必须以 `.caddy` 为后缀。
 
 ## 开源协议
 

@@ -50,3 +50,6 @@ caddy/conf.d/*.caddy
 
 # log
 logs/
+
+# result
+.result/
