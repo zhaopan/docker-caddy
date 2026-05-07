@@ -52,5 +52,23 @@ make reload
 - **TLS**: `开启 (True)`
 - **SNI**: `your.domain.com`
 
+## e.g
+
+```yml
+proxies:
+  - name: 🇺🇸 US01
+    server: trojan.dev.com
+    port: 443
+    type: trojan
+    password: 123456
+    network: grpc
+    udp: true
+    sni: trojan.dev.com
+    grpc-opts:
+      grpc-service-name: "trojan.dev.com"
+    alpn:
+      - h2
+```
+
 ---
 *注意：本模块依赖 `backend` 外部网络，请确保已运行过全局 `make up`。*
