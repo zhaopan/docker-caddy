@@ -2,7 +2,7 @@
 
 基于 Caddy v2.11+ 和 `caddy-trojan` 插件的高性能代理方案，采用 gRPC 传输协议并由主网关统一进行 TLS 卸载。
 
-## 🚀 快速开始
+## 快速开始
 
 ### 1. 初始化与启动
 确保你已经完成了项目的全局初始化（`make init`），然后运行：
@@ -24,7 +24,7 @@ make trojan-reset DOMAIN=your.domain.com
 make reload
 ```
 
-## 🛠️ 管理指令
+## 管理指令
 
 | 命令 | 说明 |
 | :--- | :--- |
@@ -34,13 +34,13 @@ make reload
 | `make status trojan` | 查看容器运行状态 |
 | `make fmt` | 格式化 Caddy 配置文件 |
 
-## 📁 目录结构
+## 目录结构
 
 - `caddy/`：Trojan 专用的 Caddy 配置与环境。
 - `reset.sh`：自动化配置脚本。
 - `Dockerfile`：集成 `caddy-trojan` 插件的自构建镜像。
 
-## 📱 客户端连接指引 (gRPC)
+## 客户端连接指引 (gRPC)
 
 推荐使用支持 gRPC 的客户端（如 v2rayN, Clash Meta, Shadowrocket 等）：
 
