@@ -14,7 +14,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
 
     steps:
       # 步骤 1: 检出您的仓库代码
@@ -91,3 +90,40 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/grpc:1.0
             ghcr.io/${{ github.repository_owner }}/grpc:${{ github.sha }}
             ghcr.io/${{ github.repository_owner }}/grpc:latest
+
+      # 步骤 8: 构建并推送 Trojan 镜像
+      - name: Build and push Trojan image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./trojan
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/trojan:v2.11.1
+            ghcr.io/${{ github.repository_owner }}/trojan:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/trojan:latest
+
+      # 步骤 9: 构建并推送 FRPS 镜像
+      - name: Build and push FRPS image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frp/frps/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/frps:0.68.1
+            ghcr.io/${{ github.repository_owner }}/frps:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/frps:latest
+          build-args: |
+            FRP_VERSION=${{ vars.FRP_VERSION || '0.68.1' }}
+
+      # 步骤 10: 构建并推送 FRPC 镜像
+      - name: Build and push FRPC image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frp/frpc/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/frpc:0.68.1
+            ghcr.io/${{ github.repository_owner }}/frpc:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/frpc:latest
+          build-args: |
+            FRP_VERSION=${{ vars.FRP_VERSION || '0.68.1' }}
