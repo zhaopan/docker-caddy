@@ -8,7 +8,8 @@ x-hosts: &hosts
     - api.dev.com:${PROXY_IP}
     - admin.dev.com:${PROXY_IP}
     - grpc.dev.com:${PROXY_IP}
-    - frp.dev.com:${PROXY_IP}
+    - frps.dev.com:${PROXY_IP}
+    - frpc.dev.com:${PROXY_IP}
     - trojan.dev.com:${PROXY_IP}
 
 services:
