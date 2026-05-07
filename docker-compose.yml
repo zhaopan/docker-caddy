@@ -9,6 +9,7 @@ x-hosts: &hosts
     - admin.dev.com:${PROXY_IP}
     - grpc.dev.com:${PROXY_IP}
     - frp.dev.com:${PROXY_IP}
+    - trojan.dev.com:${PROXY_IP}
 
 services:
   ######## proxy (Standard) ########
@@ -365,6 +366,23 @@ services:
       - frps
     <<: *hosts
 
+  ######## trojan ########
+  trojan:
+    build:
+      context: ./trojan
+      dockerfile: Dockerfile
+    image: ${AUTHOR}/trojan:latest
+    container_name: trojan
+    volumes:
+      - ./trojan/caddy/Caddyfile:/caddy/Caddyfile
+      - trojan_data:/caddy
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - backend
+    <<: *hosts
+
 networks:
   backend:
     name: backend
@@ -410,3 +428,10 @@ volumes:
       type: none
       o: bind
       device: ${N8N_PATH}
+  trojan_data:
+    name: trojan_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${TROJAN_PATH}
