@@ -52,7 +52,7 @@ make reload
 - **TLS**: `开启 (True)`
 - **SNI**: `your.domain.com`
 
-## e.g
+### e.g `gogod.yaml`
 
 ```yml
 proxies:
