@@ -1,0 +1,28 @@
+# WebDAV 配置文件
+
+http://dav.dev.com {
+	# 基础认证
+	# 注意：x，你需要设置 WEBDAV_USER 和 WEBDAV_PASS_HASH 环境变量
+	# 可以使用 `caddy hash-password --plaintext <password>` 生成 HASH
+	basic_auth {
+		{$WEBDAV_USER} {$WEBDAV_PASS_HASH}
+	}
+
+	# WebDAV 指令
+	webdav {
+		root /srv/webdav
+	}
+
+	# 日志配置
+	log {
+		output file /logs/webdav.log {
+			roll_size 10mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json {
+			time_format "iso8601"
+		}
+		level INFO
+	}
+}

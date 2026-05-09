@@ -24,6 +24,8 @@ services:
     hostname: proxy
     environment:
       - TZ=Asia/Shanghai
+      - WEBDAV_USER=${WEBDAV_USER}
+      - WEBDAV_PASS_HASH=${WEBDAV_PASS_HASH}
     ports:
       - "80:80"
       - "443:443"
