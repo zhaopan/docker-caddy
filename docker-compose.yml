@@ -35,6 +35,7 @@ services:
       - caddy_config:/config/caddy # 运行时配置
       - caddy_logs:/logs # 日志目录
       - caddy_www:/var/www/html # 静态资源目录
+      - caddy_webdav:/srv/webdav # WebDAV 存储目录
     networks:
       backend:
         ipv4_address: ${PROXY_IP}
@@ -436,3 +437,10 @@ volumes:
       type: none
       o: bind
       device: ${TROJAN_PATH}
+  caddy_webdav:
+    name: caddy_webdav
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/webdav
