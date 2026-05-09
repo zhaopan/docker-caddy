@@ -537,8 +537,15 @@ docker exec -it caddy caddy validate --config /etc/caddy/Caddyfile
 # 查看 Caddy 当前正在生效的配置
 docker exec -it caddy caddy adapt --config //etc/caddy/Caddyfile --pretty
 
-# 生成 WebDAV 自定义 Hash 密码
-docker run --rm caddy:latest caddy hash-password --plaintext '你的明文密码'
+###
+### 生成 WebDAV 自定义 Hash 密码
+###
+docker run --rm caddy:latest caddy hash-password --plaintext '123456'
+
+>>>
+## 在 docker-compose.yml 中，$ 是预留字符，你需要使用双美元符号 $$ 来转义，否则 Docker 会尝试将其解析为宿主机的变量。
+## 错误示例：$2a$14$xxxx
+## 正确示例：$$2a$$14$$xxxx
 ```
 
 ## 版本信息
