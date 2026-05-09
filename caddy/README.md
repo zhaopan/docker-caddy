@@ -13,138 +13,28 @@
 
 | 服务 | 端口 | 说明 |
 |------|------|------|
-| caddy | 80, 443 | HTTP/HTTPS 服务器 |
+| caddy | 80, 443 | HTTP/HTTPS 服务器 (包含 WebDAV 插件) |
 | caddy-cluster1 | 80, 443 | 集群节点 1 |
 | caddy-cluster2 | 80, 443 | 集群节点 2 |
 | caddy-cluster3 | 80, 443 | 集群节点 3 |
-
-### 站点配置
-
-| 站点 | 域名 | 后端服务 | 端口 | 说明 |
-|------|------|----------|------|------|
-| www | `www.example.com` | home-service | 3000 | 主站点 |
-| api | `api.example.com` | api-service | 3001 | API 接口 |
-| admin | `admin.example.com` | admin-service | 3002 | 管理后台 |
 
 ## 配置文件说明
 
 ### Caddyfile
 
-主配置文件，包含全局配置和站点导入：
-
-```caddyfile
-# Caddy 配置
-{
-    # 日志配置
-    log {
-        output file /data/logs/caddy.log
-        format console
-        level INFO
-    }
-}
-
-# 导入站点配置
-import conf.d/*.caddy
-```
+主配置文件，定义全局配置并导入各站点配置。详细配置请参考根目录下的 [Caddyfile](./Caddyfile)。
 
 ### 站点配置文件
 
-#### 02-www.caddy - 主站点配置
+详细的站点配置请参考 `conf.d/example` 目录下的示例文件：
 
-```caddyfile
-# Home Site Configuration
-www {
-    # 反向代理到 home 服务
-    reverse_proxy home-service:3000 {
-        # 健康检查
-        health_uri /health
-        health_interval 30s
-        health_timeout 5s
-    }
-
-    # 安全头
-    header {
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        Referrer-Policy "strict-origin-when-cross-origin"
-    }
-
-    # Gzip 压缩
-    encode gzip
-
-    # 日志记录
-    log {
-        output file /data/logs/home.log
-        format json
-        level INFO
-    }
-}
-```
-
-#### 03-api.caddy - API 接口配置
-
-```caddyfile
-# API Site Configuration
-api {
-    # 反向代理到 API 服务
-    reverse_proxy api-service:3001 {
-        health_uri /health
-        health_interval 30s
-        health_timeout 5s
-    }
-
-    # 安全头
-    header {
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        Referrer-Policy "strict-origin-when-cross-origin"
-    }
-
-    # Gzip 压缩
-    encode gzip
-
-    # 日志记录
-    log {
-        output file /data/logs/api.log
-        format json
-        level INFO
-    }
-}
-```
-
-#### 04-admin.caddy - 管理后台配置
-
-```caddyfile
-# Admin Site Configuration
-admin {
-    # 反向代理到管理服务
-    reverse_proxy admin-service:3002 {
-        health_uri /health
-        health_interval 30s
-        health_timeout 5s
-    }
-
-    # 安全头
-    header {
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        X-XSS-Protection "1; mode=block"
-        Referrer-Policy "strict-origin-when-cross-origin"
-    }
-
-    # Gzip 压缩
-    encode gzip
-
-    # 日志记录
-    log {
-        output file /data/logs/admin.log
-        format json
-        level INFO
-    }
-}
-```
+- **主站点配置**：[dev.com-caddy](./conf.d/example/dev.com-caddy)
+- **API 接口配置**：[api.dev.com-caddy](./conf.d/example/api.dev.com-caddy)
+- **管理后台配置**：[admin.dev.com-caddy](./conf.d/example/admin.dev.com-caddy)
+- **WebDAV 服务配置**：[webdav.dev.com-caddy](./conf.d/example/webdav.dev.com-caddy)
+- **gRPC 服务配置**：[grpc.dev.com-caddy](./conf.d/example/grpc.dev.com-caddy)
+- **Trojan 代理配置**：[trojan.dev.com-caddy](./conf.d/example/trojan.dev.com-caddy)
+- **FRP 穿透配置**：[frps.dev.com-caddy](./conf.d/example/frps.dev.com-caddy) / [frpc.dev.com-caddy](./conf.d/example/frpc.dev.com-caddy)
 
 ## 管理命令
 
@@ -536,16 +426,20 @@ docker exec -it caddy caddy validate --config /etc/caddy/Caddyfile
 
 # 查看 Caddy 当前正在生效的配置
 docker exec -it caddy caddy adapt --config //etc/caddy/Caddyfile --pretty
+```
 
-###
-### 生成 WebDAV 自定义 Hash 密码
-###
-docker run --rm caddy:latest caddy hash-password --plaintext '123456'
+### WebDAV 密码管理
 
->>>
-## 在 docker-compose.yml 中，$ 是预留字符，你需要使用双美元符号 $$ 来转义，否则 Docker 会尝试将其解析为宿主机的变量。
-## 错误示例：$2a$14$xxxx
-## 正确示例：$$2a$$14$$xxxx
+**生成自定义密码哈希**：
+
+```bash
+docker run --rm caddy:latest caddy hash-password --plaintext '你的明文密码'
+
+## 注意事项
+## 在 `docker-compose.yml` 的 `environment` 节点中，`$` 是预留字符。如果直接使用生成的哈希值，Docker 会尝试将其解析为宿主机变量，导致报错。
+## 必须使用双美元符号 `$$` 来进行转义
+## 错误示例: WEBDAV_PASS_HASH=$2a$14$xxxx
+## 正确示例: WEBDAV_PASS_HASH=$$2a$$14$$xxxx
 ```
 
 ## 版本信息
