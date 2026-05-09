@@ -536,6 +536,9 @@ docker exec -it caddy caddy validate --config /etc/caddy/Caddyfile
 
 # 查看 Caddy 当前正在生效的配置
 docker exec -it caddy caddy adapt --config //etc/caddy/Caddyfile --pretty
+
+# 生成 WebDAV 自定义 Hash 密码
+docker run --rm caddy:latest caddy hash-password --plaintext '你的明文密码'
 ```
 
 ## 版本信息
