@@ -9,8 +9,10 @@ http://dav.dev.com {
 	}
 
 	# WebDAV 指令
-	webdav {
-		root /srv/webdav
+	route {
+		webdav {
+			root /srv/webdav
+		}
 	}
 
 	# 日志配置
