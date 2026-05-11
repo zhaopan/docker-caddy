@@ -10,7 +10,8 @@ x-hosts: &hosts
     - grpc.dev.com:${PROXY_IP}
     - frps.dev.com:${PROXY_IP}
     - frpc.dev.com:${PROXY_IP}
-    - trojan.dev.com:${PROXY_IP}
+    - ${WEBDAV_HOST}:${PROXY_IP}
+    - ${TROJAN_SERVICE}:${PROXY_IP}
 
 services:
   ######## proxy (Standard) ########
