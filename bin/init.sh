@@ -106,17 +106,13 @@ if [ -n "$targets" ]; then
     cp .env "$BACKUP"
     log_success "Backed up current configuration to $BACKUP"
 
-    SED_CMD_FILE=$(mktemp)
     for var in $targets; do
         # Generate random password
         new_secret=$(set +o pipefail; LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom 2>/dev/null | head -c "$SECRET_LEN")
-        echo "s|^\([[:space:]]*\(export[[:space:]]*\)\?$var[[:space:]]*=[[:space:]]*\)[^#]*|\1\"$new_secret\"|g" >> "$SED_CMD_FILE"
+        # Use a more robust sed regex to preserve the prefix (including export and spaces)
+        sed -i "s/^\([[:space:]]*\(export[[:space:]]*\)\?$var[[:space:]]*=[[:space:]]*\)[^#]*/\1\"$new_secret\"/" .env
         log_info "Updated variable: $var"
     done
-
-    # Execute replacement
-    sed -i -f "$SED_CMD_FILE" .env
-    rm -f "$SED_CMD_FILE"
     log_success "All default passwords updated to random secure passwords."
 else
     log_success "No default passwords found, security check passed."
