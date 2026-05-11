@@ -11,7 +11,7 @@
 	trojan {
 		caddy
 		no_proxy
-		users 123456
+		users {$TROJAN_PASS}
 	}
 }
 
@@ -20,7 +20,7 @@
 		trojan {
 			connect_method
 			grpc {
-				service_name "trojan.dev.com"
+				service_name "{$TROJAN_SERVICE}"
 			}
 		}
 		file_server {
