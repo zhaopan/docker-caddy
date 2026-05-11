@@ -17,7 +17,7 @@ else ifeq ($(MODE),cluster)
 endif
 
 # --- Service & Command Definition ---
-CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload rebuild frp-install frp-reset fmt trojan-reset
+CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload reload-force rebuild frp-install frp-reset fmt trojan-reset
 # Define valid services for validation (including aliases)
 VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw frps frpc trojan
 
@@ -58,7 +58,8 @@ help:
 	@echo "  make rebuild [service] Rebuild and restart service"
 	@echo "  make status [service]  Show status (alias: st)"
 	@echo "  make logs [service]    Tail logs"
-	@echo "  make reload            Reload proxy config"
+	@echo "  make reload            Reload proxy config (exec reload)"
+	@echo "  make reload-force      Force reload Proxy (recreate container)"
 	@echo "  make down              Remove project"
 	@echo "  make clean             Cleanup project (remove all data/containers)"
 	@echo "  make frp-install       Initialize FRP config"
@@ -130,6 +131,10 @@ else
 	@echo "Reloading Proxy..."
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy proxy caddy reload
 endif
+
+reload-force:
+	@echo "Force Reloading Proxy (Recreating Container)..."
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) up -d --force-recreate proxy
 
 fmt:
 	docker exec caddy sh -c "caddy fmt --overwrite /etc/caddy/Caddyfile"
