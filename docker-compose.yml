@@ -24,8 +24,18 @@ services:
     hostname: proxy
     environment:
       - TZ=Asia/Shanghai
+      - MAIN_DOMAIN=${MAIN_DOMAIN}
+      - HOME_HOST=${HOME_HOST}
+      - ADMIN_HOST=${ADMIN_HOST}
+      - API_HOST=${API_HOST}
+      - GRPC_HOST=${GRPC_HOST}
+      - FRPS_HOST=${FRPS_HOST}
+      - FRPC_HOST=${FRPC_HOST}
+      - WEBDAV_HOST=${WEBDAV_HOST}
       - WEBDAV_USER=${WEBDAV_USER}
       - WEBDAV_PASS_HASH=${WEBDAV_PASS_HASH}
+      - N8N_HOST=${N8N_HOST}
+      - TROJAN_HOST=${TROJAN_HOST}
     ports:
       - "80:80"
       - "443:443"
