@@ -70,5 +70,18 @@ proxies:
       - h2
 ```
 
+## 重启
+
+```bash
+# 1. 强制重新创建并启动 trojan 容器（确保环境变量和挂载文件生效）
+docker-compose up -d --force-recreate trojan
+
+# 2. 检查 trojan 容器的状态，确认它是否处于 Up 状态
+docker ps | grep trojan
+
+# 3. 如果容器运行正常，尝试进入容器查看内部 Caddy 是否正常监听
+docker exec -it trojan netstat -tln | grep 80
+
+```
 ---
 *注意：本模块依赖 `backend` 外部网络，请确保已运行过全局 `make up`。*
