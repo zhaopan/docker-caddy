@@ -2,17 +2,15 @@
 x-hosts: &hosts
   extra_hosts:
     - host.docker.internal:host-gateway
-    - default.dev.com:${PROXY_IP}
-    - dev.com:${PROXY_IP}
-    - www.dev.com:${PROXY_IP}
-    - api.dev.com:${PROXY_IP}
-    - admin.dev.com:${PROXY_IP}
-    - grpc.dev.com:${PROXY_IP}
-    - frps.dev.com:${PROXY_IP}
-    - frpc.dev.com:${PROXY_IP}
+    - ${HOME_HOST}:${PROXY_IP}
+    - ${ADMIN_HOST}:${PROXY_IP}
+    - ${API_HOST}:${PROXY_IP}
+    - ${GRPC_HOST}:${PROXY_IP}
+    - ${FRPS_HOST}:${PROXY_IP}
+    - ${FRPC_HOST}:${PROXY_IP}
     - ${WEBDAV_HOST}:${PROXY_IP}
     - ${N8N_HOST}:${PROXY_IP}
-    - ${TROJAN_SERVICE}:${PROXY_IP}
+    - ${TROJAN_HOST}:${PROXY_IP}
 
 services:
   ######## proxy (Standard) ########
@@ -387,7 +385,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - TROJAN_PASS=${TROJAN_PASS}
-      - TROJAN_SERVICE=${TROJAN_SERVICE}
+      - TROJAN_HOST=${TROJAN_HOST}
     networks:
       - backend
     <<: *hosts

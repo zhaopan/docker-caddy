@@ -1,9 +1,9 @@
 # API Site Configuration
-http://api.dev.com {
+{$API_HOST} {
 	#tls internal
-	#tls api@xxabb.xyz
+	#tls {$API_HOST}
 
-	root * /var/www/html/api.dev.com
+	root * /var/www/html/{$API_HOST}
 
 	reverse_proxy host.docker.internal:18010 {
 		health_uri /health
@@ -21,7 +21,7 @@ http://api.dev.com {
 	encode gzip
 
 	log {
-		output file /logs/api.dev.com.log {
+		output file /logs/{$API_HOST}.log {
 			roll_size 10mb
 			roll_keep 10
 			roll_keep_for 720h

@@ -1,9 +1,9 @@
 # Home Site Configuration
-http://home.xxabb.xyz http://dev.com {
+{$HOME_HOST} {
 	#tls internal
-	#tls home@xxabb.xyz
+	#tls {$HOME_HOST}
 
-	root * /var/www/html/dev.com
+	root * /var/www/html/{$HOME_HOST}
 
 	file_server
 
@@ -26,7 +26,7 @@ http://home.xxabb.xyz http://dev.com {
 	encode zstd gzip
 
 	log {
-		output file /logs/dev.com.log {
+		output file /logs/{$HOME_HOST}.log {
 			roll_size 10mb
 			roll_keep 10
 			roll_keep_for 720h

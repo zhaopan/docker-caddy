@@ -1,7 +1,7 @@
-frpc.dev.com {
+{$FRPC_HOST} {
 	# 注意：frpc 默认未开启管理面板。如需使用，请在 frpc.toml 中配置 webServer。
 	reverse_proxy frpc:7400
 	log {
-		output file /logs/frpc.dev.com.log
+		output file /logs/{$FRPC_HOST}.log
 	}
 }
