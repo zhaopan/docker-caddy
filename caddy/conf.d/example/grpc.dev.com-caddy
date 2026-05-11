@@ -1,9 +1,9 @@
 # gRPC Site Configuration
-http://grpc.dev.com {
+{$GRPC_HOST} {
 	#tls internal
-	#tls grpc@xxabb.xyz
+	#tls {$GRPC_HOST}
 
-	root * /var/www/html/grpc.dev.com
+	root * /var/www/html/{$GRPC_HOST}
 
 	reverse_proxy grpc:80
 
@@ -13,7 +13,7 @@ http://grpc.dev.com {
 	}
 
 	log {
-		output file /logs/grpc.dev.com.log {
+		output file /logs/{$GRPC_HOST}.log {
 			roll_size 10mb
 			roll_keep 10
 			roll_keep_for 720h

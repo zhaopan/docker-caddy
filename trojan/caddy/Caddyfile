@@ -20,7 +20,7 @@
 		trojan {
 			connect_method
 			grpc {
-				service_name "{$TROJAN_SERVICE}"
+				service_name "{$TROJAN_HOST}"
 			}
 		}
 		file_server {

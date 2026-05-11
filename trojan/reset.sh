@@ -10,7 +10,7 @@ ENV_FILE="../.env"
 # 1. 加载 .env 变量 (如果存在)
 if [ -f "$ENV_FILE" ]; then
     # 使用 grep 和 sed 提取变量，避免直接 source 可能带来的兼容性问题
-    ENV_DOMAIN=$(grep "^TROJAN_SERVICE=" "$ENV_FILE" | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+    ENV_DOMAIN=$(grep "^TROJAN_HOST=" "$ENV_FILE" | cut -d'=' -f2 | tr -d '"' | tr -d "'")
     ENV_PASS=$(grep "^TROJAN_PASS=" "$ENV_FILE" | cut -d'=' -f2 | tr -d '"' | tr -d "'")
 fi
 
@@ -45,7 +45,7 @@ NEW_PROXY_CONFIG="$PROXY_CONFIG_DIR/trojan.${DOMAIN}.caddy"
 if [ -n "$OLD_PROXY_CONFIG" ]; then
     # 修改文件内的域名
     sed -i "1s|.*{|${DOMAIN} {|" "$OLD_PROXY_CONFIG"
-    
+
     # 如果域名发生变化，重命名配置文件
     if [ "$OLD_PROXY_CONFIG" != "$NEW_PROXY_CONFIG" ]; then
         mv "$OLD_PROXY_CONFIG" "$NEW_PROXY_CONFIG"
@@ -59,7 +59,7 @@ fi
 
 # 6. 回写 .env (保持同步)
 if [ -f "$ENV_FILE" ]; then
-    sed -i "s|^TROJAN_SERVICE=.*|TROJAN_SERVICE=\"$DOMAIN\"|" "$ENV_FILE"
+    sed -i "s|^TROJAN_HOST=.*|TROJAN_HOST=\"$DOMAIN\"|" "$ENV_FILE"
     sed -i "s|^TROJAN_PASS=.*|TROJAN_PASS=\"$NEW_PASS\"|" "$ENV_FILE"
     echo "[OK] 已同步更新 .env 文件"
 fi

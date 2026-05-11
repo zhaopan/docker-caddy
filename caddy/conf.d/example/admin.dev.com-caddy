@@ -1,9 +1,9 @@
 # Admin Site Configuration
-http://admin.dev.com {
+{$ADMIN_HOST} {
 	#tls internal
-	#tls admin@xxabb.xyz
+	#tls {$ADMIN_HOST}
 
-	root * /var/www/html/admin.dev.com
+	root * /var/www/html/{$ADMIN_HOST}
 
 	try_files {path} {path}/ /index.html
 
@@ -31,7 +31,7 @@ http://admin.dev.com {
 	encode gzip
 
 	log {
-		output file /logs/admin.dev.com.log {
+		output file /logs/{$ADMIN_HOST}.log {
 			roll_size 10mb
 			roll_keep 10
 			roll_keep_for 720h
