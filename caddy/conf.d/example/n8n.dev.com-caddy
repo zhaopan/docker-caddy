@@ -1,0 +1,21 @@
+# n8n 配置文件
+
+{$N8N_HOST} {
+	# 转发到 n8n 容器
+	reverse_proxy n8n:5678 {
+		flush_interval -1
+	}
+
+	# 日志配置
+	log {
+		output file /logs/n8n.log {
+			roll_size 10mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json {
+			time_format "iso8601"
+		}
+		level INFO
+	}
+}
