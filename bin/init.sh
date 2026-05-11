@@ -31,16 +31,37 @@ log_error() {
     printf "${RED}   [ERR]  $1${NC}\n"
 }
 
-# 1. Initialize data directory
-log_header "Initialize Data Directory"
-if [ -d "data" ]; then
-    log_info "Data directory 'data' already exists, skipping creation."
-else
-    log_info "Creating data directory 'data'..."
-    mkdir -p data
-    chmod -R +w data
-    log_success "Data directory created successfully."
-fi
+# 1. Initialize Data Directories
+log_header "Initialize Data Directories"
+DIRS=(
+    "./data"
+    "./data/redis"
+    "./data/mysql"
+    "./data/ollama"
+    "./data/postgres"
+    "./data/openclaw"
+    "./data/www"
+    "./data/webdav"
+    "./data/frp/logs"
+    "${CADDY_ROOT:-./data/caddy}/data"
+    "${CADDY_ROOT:-./data/caddy}/config"
+    "${CADDY_ROOT:-./data/caddy}/logs"
+    "${N8N_PATH:-./data/n8n}"
+    "${N8N_PATH:-./data/n8n}/userfiles"
+    "${TROJAN_PATH:-./data/trojan}"
+)
+
+for dir in "${DIRS[@]}"; do
+    if [ ! -d "$dir" ]; then
+        log_info "Creating directory: $dir"
+        mkdir -p "$dir"
+        # Special handling for base data directory
+        if [ "$dir" == "data" ]; then
+            chmod -R +w data
+        fi
+    fi
+done
+log_success "All required data directories initialized."
 
 # 2. Initialize Network
 log_header "Initialize Docker Network"
