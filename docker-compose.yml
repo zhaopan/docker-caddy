@@ -214,7 +214,7 @@ services:
     links:
       - redis
       - postgres
-      - ollama
+      #- ollama
       #- mysql
     depends_on:
       redis:
