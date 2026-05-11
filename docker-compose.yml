@@ -384,6 +384,8 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Shanghai
+      - TROJAN_PASS=${TROJAN_PASS}
+      - TROJAN_SERVICE=${TROJAN_SERVICE}
     networks:
       - backend
     <<: *hosts
