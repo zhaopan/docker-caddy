@@ -68,7 +68,7 @@ help:
 	@echo ""
 
 init:
-	@sh bin/init.sh
+	@bash bin/init.sh
 
 prepare-sentinel:
 	@if [ "$(MODE)" != "standard" ] && [ -z "$(SERVICE)" ]; then \
@@ -117,7 +117,7 @@ down:
 	fi
 
 clean:
-	@sh bin/cleanup.sh
+	@bash bin/cleanup.sh
 
 reload:
 ifeq ($(MODE),cluster)
