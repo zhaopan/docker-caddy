@@ -55,9 +55,25 @@ for dir in "${DIRS[@]}"; do
     if [ ! -d "$dir" ]; then
         log_info "Creating directory: $dir"
         mkdir -p "$dir"
+        
         # Special handling for base data directory
-        if [ "$dir" == "data" ]; then
-            chmod -R +w data
+        if [[ "$dir" == "data" || "$dir" == "./data" ]]; then
+            chmod -R +w "$dir"
+        fi
+        
+        # n8n specific permissions
+        if [[ "$dir" == *"/n8n"* ]]; then
+            # Set ownership for n8n's node user (UID 1000)
+            if command -v chown >/dev/null 2>&1; then
+                chown -R 1000:1000 "$dir" 2>/dev/null || true
+            fi
+            
+            # Specific permissions for userfiles
+            if [[ "$dir" == *"userfiles"* ]]; then
+                chmod -R 775 "$dir"
+            else
+                chmod -R 777 "$dir"
+            fi
         fi
     fi
 done
