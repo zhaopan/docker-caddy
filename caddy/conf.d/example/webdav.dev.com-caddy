@@ -1,6 +1,6 @@
 # WebDAV 配置文件
 
-http://dav.dev.com {
+{$WEBDAV_HOST} {
 	# 基础认证
 	# 注意：需要设置 WEBDAV_USER 和 WEBDAV_PASS_HASH 环境变量
 	# 可以使用 `caddy hash-password --plaintext <password>` 生成 HASH
