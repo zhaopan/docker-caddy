@@ -2,7 +2,7 @@
 # Usage: make <cmd> [service] [MODE=standard|redis-ha|cluster]
 
 MODE ?= standard
-DOCKER_COMPOSE = docker-compose
+DOCKER_COMPOSE = docker compose
 
 # Compose File Combinations based on MODE
 ifeq ($(MODE),standard)
@@ -73,16 +73,7 @@ init:
 
 prepare-sentinel:
 	@if [ "$(MODE)" != "standard" ] && [ -z "$(SERVICE)" ]; then \
-		echo "Preparing Redis Sentinel configurations..."; \
-		$(DOCKER_COMPOSE) $(COMPOSE_FILES) up -d redis; \
-		MASTER_IP=$$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' redis-master); \
-		echo "Detected Master IP: $$MASTER_IP"; \
-		REDIS_PASS=$$(grep REDIS_PASSWORD .env | cut -d '=' -f2); \
-		mkdir -p redis/generated; \
-		for i in 1 2 3; do \
-			sed -e "s/REDIS_MASTER_IP/$$MASTER_IP/g" -e "s/REDIS_PASSWORD/$$REDIS_PASS/g" redis/sentinel.conf.template > redis/generated/sentinel$$i.conf; \
-		done; \
-		sed -e "s/REDIS_MASTER_IP/$$MASTER_IP/g" -e "s/REDIS_PASSWORD/$$REDIS_PASS/g" redis/redis-slave.conf.template > redis/generated/redis-slave.conf; \
+		bash bin/prepare-sentinel.sh; \
 	fi
 
 up: init
@@ -123,10 +114,9 @@ clean:
 reload:
 ifeq ($(MODE),cluster)
 	@echo "Reloading Cluster (Proxy + Workers)..."
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy proxy caddy reload
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy proxy-worker1 caddy reload
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy proxy-worker2 caddy reload
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy proxy-worker3 caddy reload
+	@for svc in proxy proxy-worker1 proxy-worker2 proxy-worker3; do \
+		$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy $$svc caddy reload; \
+	done
 else
 	@echo "Reloading Proxy..."
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) exec -w /etc/caddy proxy caddy reload

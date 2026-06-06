@@ -1,35 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 SECRET_LEN=16
 
-# Color
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
-
-# Logging helper functions
-log_header() {
-    printf "\n${BLUE}===> $1 <===${NC}\n"
-}
-
-log_info() {
-    printf "${NC}   [INFO] $1${NC}\n"
-}
-
-log_success() {
-    printf "${GREEN}   [OK]   $1${NC}\n"
-}
-
-log_warn() {
-    printf "${YELLOW}   [WARN] $1${NC}\n"
-}
-
-log_error() {
-    printf "${RED}   [ERR]  $1${NC}\n"
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/_utils.sh"
 
 # 1. Initialize Data Directories
 log_header "Initialize Data Directories"
