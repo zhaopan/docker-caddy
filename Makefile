@@ -17,7 +17,7 @@ else ifeq ($(MODE),cluster)
 endif
 
 # --- Service & Command Definition ---
-CMD_LIST := up stop restart status st logs down help init prepare-sentinel clean reload reload-force rebuild frp-install frp-reset fmt trojan-reset
+CMD_LIST := up stop restart status st logs down help init sync prepare-sentinel clean reload reload-force rebuild frp-install frp-reset fmt trojan-reset
 # Define valid services for validation (including aliases)
 VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw frps frpc trojan
 
@@ -52,6 +52,7 @@ help:
 	@echo "Usage:"
 	@echo "  make up [service]      Start services"
 	@echo "  make init              Initialize network, .env and passwords"
+	@echo "  make sync              Sync git submodules to remote latest"
 	@echo "  make fmt               Format Caddyfile"
 	@echo "  make stop [service]    Stop services"
 	@echo "  make restart [service] Restart services"
@@ -70,6 +71,15 @@ help:
 
 init:
 	@bash bin/init.sh
+
+sync:
+	@git submodule update --remote --recursive
+	@echo "Submodules updated. Changed files:"
+	@git diff --name-only
+	@echo ""
+	@echo "To commit the update:"
+	@echo "  git add git-webhook"
+	@echo '  git commit -m "update: update git-webhook submodule"'
 
 prepare-sentinel:
 	@if [ "$(MODE)" != "standard" ] && [ -z "$(SERVICE)" ]; then \

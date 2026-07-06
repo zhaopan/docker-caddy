@@ -37,6 +37,14 @@ make init
 make up
 ```
 
+### 4. 子模块初始化
+
+本项目使用 Git 子模块管理 webhook 服务，克隆仓库后需执行初始化：
+
+```bash
+git submodule update --init --recursive
+```
+
 ## 常用管理指令
 
 ### 全局操作
@@ -62,6 +70,35 @@ make up
 - `frp/` : 内网穿透组件。
 - `n8n/` : 自动化工作流引擎。
 - `data/` : 持久化数据存储目录（MySQL, Redis, Mongo, Postgres）。
+- `git-webhook/` : Git 子模块，git-webhook 服务。
+
+## 子模块管理
+
+### 更新子模块到远程最新版本
+
+```bash
+git submodule update --remote --recursive
+git add git-webhook
+git commit -m "chore: update git-webhook submodule"
+```
+
+### 切换子模块远程仓库协议
+
+如需将子模块协议从 SSH 切换为 HTTPS（或反之）：
+
+```bash
+# 查看当前子模块 URL
+git config --file=.gitmodules submodule.git-webhook.url
+
+# 修改为 HTTPS
+git config --file=.gitmodules submodule.git-webhook.url https://github.com/xxabb/git-webhook.git
+
+# 同步更改到 .git/config
+git submodule sync
+
+# 重新拉取
+git submodule update --remote --recursive
+```
 
 ## 开发注意事项
 

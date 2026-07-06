@@ -1,0 +1,4 @@
+[submodule "git-webhook"]
+	path = git-webhook
+	url = https://github.com/xxabb/git-webhook.git
+	merge = git merge -X theirs
