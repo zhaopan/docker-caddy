@@ -35,6 +35,7 @@
 - **gRPC 服务配置**：[grpc.dev.com-caddy](./conf.d/example/grpc.dev.com-caddy)
 - **Trojan 代理配置**：[trojan.dev.com-caddy](./conf.d/example/trojan.dev.com-caddy)
 - **FRP 穿透配置**：[frps.dev.com-caddy](./conf.d/example/frps.dev.com-caddy) / [frpc.dev.com-caddy](./conf.d/example/frpc.dev.com-caddy)
+- **Gotify 推送配置**：[ntfy.dev.com-caddy](./conf.d/example/ntfy.dev.com-caddy)
 
 ## 管理命令
 
@@ -182,6 +183,39 @@ curl http://localhost:3000/health
 curl http://localhost:3001/health
 curl http://localhost:3002/health
 ```
+
+### 5. 新增域名环境变量与重载排查
+
+当在 `docker-compose.yml` 中为 Caddy 添加了新的域名环境变量（如 `GOTIFY_HOST`），并在 `conf.d/` 站点配置中引用了 `{$GOTIFY_HOST}` 时，若直接执行 `make reload` 可能会出现如下报错：
+
+```text
+Error: adapting config using caddyfile: server block without any key is global configuration, and if used, it must be first
+```
+
+**原因分析**：
+`make reload` 仅在已有运行容器内执行热重载。若容器创建时系统环境变量中未注入该变量，Caddy 会将 `{$GOTIFY_HOST}` 解析为空字符串，导致站点块被误判为缺少域名的全局配置块。
+
+**解决步骤**：
+
+1. **确认环境变量配置**：
+  检查当前 `.env` 文件，确认新增域名变量已配置且非空：
+  ```bash
+  grep GOTIFY_HOST .env
+  ```
+2. **强制重新创建 proxy 容器**：
+  执行强制重载以载入新增注入的环境变量：
+  ```bash
+  make reload-force
+  ```
+  该命令等价于执行：
+  ```bash
+  docker compose -f docker-compose.yml up -d --force-recreate proxy
+  ```
+3. **验证服务运行状态**：
+  查看 Caddy 启动与日志输出，确认证书申请与反向代理路由加载无误：
+  ```bash
+  make logs proxy
+  ```
 
 ## 日志管理
 
