@@ -1,0 +1,26 @@
+# ntfy Site Configuration
+{$GOTIFY_HOST} {
+	#tls internal
+	#tls {$GOTIFY_HOST}
+
+	#root * /var/www/html/{$GOTIFY_HOST}
+
+	reverse_proxy ntfy:80
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+	}
+
+	log {
+		output file /logs/{$GOTIFY_HOST}.log {
+			roll_size 10mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json {
+			time_format "iso8601"
+		}
+		level INFO
+	}
+}

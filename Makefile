@@ -19,7 +19,7 @@ endif
 # --- Service & Command Definition ---
 CMD_LIST := up stop restart status st logs down help init sync prepare-sentinel clean reload reload-force rebuild frp-install frp-reset fmt trojan-reset
 # Define valid services for validation (including aliases)
-VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw frps frpc trojan
+VALID_SERVICES := proxy caddy redis mysql grpc n8n postgres redis-slave1 redis-slave2 redis-sentinel1 redis-sentinel2 redis-sentinel3 ollama openclaw frps frpc trojan ntfy gotify
 
 # Extract words that are not commands or mode assignments
 RAW_GOALS := $(filter-out $(CMD_LIST) MODE=%,$(MAKECMDGOALS))
@@ -27,6 +27,8 @@ RAW_GOALS := $(filter-out $(CMD_LIST) MODE=%,$(MAKECMDGOALS))
 # Validate services and define aliases
 ifeq ($(RAW_GOALS),caddy)
     SERVICE := proxy
+else ifeq ($(RAW_GOALS),gotify)
+    SERVICE := ntfy
 else ifneq ($(filter $(RAW_GOALS),$(VALID_SERVICES)),)
     SERVICE := $(RAW_GOALS)
 else ifneq ($(RAW_GOALS),)

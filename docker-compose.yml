@@ -11,6 +11,7 @@ x-hosts: &hosts
     - ${WEBDAV_HOST}:${PROXY_IP}
     - ${N8N_HOST}:${PROXY_IP}
     - ${TROJAN_HOST}:${PROXY_IP}
+    - ${GOTIFY_HOST}:${PROXY_IP}
 
 services:
   ######## proxy (Standard) ########
@@ -36,6 +37,7 @@ services:
       - WEBDAV_PASS_HASH=${WEBDAV_PASS_HASH}
       - N8N_HOST=${N8N_HOST}
       - TROJAN_HOST=${TROJAN_HOST}
+      - GOTIFY_HOST=${GOTIFY_HOST}
     ports:
       - "80:80"
       - "443:443"
@@ -400,6 +402,24 @@ services:
       - backend
     <<: *hosts
 
+  ######## ntfy ########
+  ntfy:
+    image: gotify/server
+    container_name: ntfy
+    restart: unless-stopped
+    ports:
+      - "${GOTIFY_PORT}:80"
+    environment:
+      - TZ=Asia/Shanghai
+      - GOTIFY_DEFAULTUSER_NAME=${GOTIFY_DEFAULTUSER_NAME}
+      - GOTIFY_DEFAULTUSER_PASS=${GOTIFY_DEFAULTUSER_PASS}
+      #- GOTIFY_SERVER_CORS_ALLOWORIGINS='*'
+    volumes:
+      - ntfy_data:/app/data
+    networks:
+      - backend
+    <<: *hosts
+
 networks:
   backend:
     name: backend
@@ -459,3 +479,10 @@ volumes:
       type: none
       o: bind
       device: ./data/webdav
+  ntfy_data:
+    name: ntfy_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${GOTIFY_PATH}

@@ -24,6 +24,7 @@ DIRS=(
     "${N8N_PATH:-./data/n8n}"
     "${N8N_PATH:-./data/n8n}/userfiles"
     "${TROJAN_PATH:-./data/trojan}"
+    "${GOTIFY_PATH:-./data/gotify}"
 )
 
 for dir in "${DIRS[@]}"; do
